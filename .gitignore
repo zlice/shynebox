@@ -9,13 +9,14 @@ Makefile.in
 
 # Exact wildcard, e.g., not in subdirs.
 /build*
+!/build-aux/config.rpath
 /doc/*.1
 /doc/*.5
 /doc/*/*.1
 /doc/*/*.5
 /nls/*/*.cat
 /nls/*/generated-*.m
-/m4/*.m4
+/m4/l*.m4
 
 # Exact match, if a directory then everything in directory.
 /aclocal.m4
