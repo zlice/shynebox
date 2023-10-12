@@ -1021,13 +1021,6 @@ void ShyneboxWindow::updateSizeHints() {
 // https://tronche.com/gui/x/xlib/events/input-focus/grab.html
 // which fuck up firefox and chromium for misc widgets in each
 void ShyneboxWindow::grabButtons() {
-
-//  XGrabButton(display, Button1, AnyModifier,
-//              frame().window().window(), True, ButtonPressMask,
-//              GrabModeSync, GrabModeSync, None, None);
-//  XUngrabButton(display, Button1, Mod1Mask|Mod2Mask|Mod3Mask,
-//                frame().window().window() );
-
   // similar to KeyUtil, I don't think mask matters
   XGrabButton(display, Button1, 0,
               m_client->window(), False, ButtonPressMask,
