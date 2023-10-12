@@ -1,0 +1,113 @@
+'\" t
+.\"     Title: startshynebox
+.\"    Author: zlice https://github.com/zlice/shynebox
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 11 October 2023
+.\"    Manual: Shynebox Manual
+.\"    Source: startshynebox.txt
+.\"  Language: English
+.\"
+.TH "STARTSHYNEBOX" "1" "11 October 2023" "startshynebox\&.txt" "Shynebox Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+startshynebox \- start a shynebox session
+.SH "SYNOPSIS"
+.sp
+\fBstartshynebox\fR
+.SH "DESCRIPTION"
+.sp
+\fBstartshynebox\fR is a script which runs the file \fB~/\&.shynebox/startup\fR If it doesn\(cqt exist it will be generated\&.
+.sp
+\fBstartshynebox\fR should be started from your \fB~/\&.xinitrc\fR if you use startx, or \fB~/\&.xsession\fR if you run a display manager, like xdm\&.
+.SH "FILES"
+.PP
+\fB~/\&.shynebox/startup\fR
+.RS 4
+This file contains all commands that should be executed before shynebox is started\&. The initial file contains helpful comments for beginners\&. It also starts shynebox\&.
+.RE
+.SH "EXAMPLES"
+.sp
+The default \fB~/\&.shynebox/startup\fR is as follows:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+#!/bin/sh
+#
+# shynebox startup\-script:
+#
+# Lines starting with a \*(Aq#\*(Aq are ignored\&.
+
+# Change your keymap:
+xmodmap "$HOME/\&.Xmodmap"
+
+# Applications you want to run with shynebox\&.
+# MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN \*(Aq\*(Aq&\*(Aq\*(Aq AT THE END\&.
+#
+# unclutter \-idle 2 &
+# wmnd &
+# wmsmixer \-w &
+# idesk &
+
+# And last but not least we start shynebox\&.
+# Because it is the last app you have to run it with \*(Aq\*(Aqexec\*(Aq\*(Aq before it\&.
+
+exec shynebox
+# or if you want to keep a log:
+# exec shynebox \-log "$shynedir/log"
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+If you need to start applications after shynebox, you can change the \fBexec shynebox\fR line above to something like this:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+eval "(sleep 5s ; killall openrgb)" &
+exec shynebox
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+This will allow openrgb to change LED settings and then kill it after things have had a second to take effect\&.
+.sp
+For more details on what else you can do in this script, see \fBsh(1)\fR, or the documentation for your shell\&.
+.SH "AUTHORS"
+.sp
+The author of \fBstartfluxbox(1)\fR is Han Boetes <han at fluxbox\&.org>
+.sp
+This manpage was converted to asciidoc format by Jim Ramsay <i\&.am at jimramsay\&.com> for fluxbox\-1\&.1\&.2
+.sp
+Updated for shynebox by zlice
+.SH "SEE ALSO"
+.sp
+shynebox(1)
+.SH "AUTHOR"
+.PP
+\fBzlice https://github\&.com/zlice/shynebox\fR
+.RS 4
+Author.
+.RE

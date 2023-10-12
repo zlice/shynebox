@@ -1,0 +1,50 @@
+# -*- mode: meson -*-
+
+# BUILD OPTIONS
+
+option('enabledebug', type: 'boolean', value: false,
+       description: 'Enable DEBUG build messages')
+
+option('fribidi', type: 'boolean', value: false,
+       description: 'Enable fribidi unicode bidirectional support')
+
+option('freetype2', type: 'boolean', value: true,
+       description: 'Enable freetype2')
+
+option('imlib2', type: 'boolean', value: true,
+       description: 'Enable imlib2')
+
+# unfortunately, I only know 1 language.
+# so even if I learnt how to use the previous NLS setup
+# I can not add translations to the changes.
+#option('nls', type: 'boolean', value: false,
+#       description: 'Enable NLS/I18n (internationalization)')
+
+option('regexp', type: 'boolean', value: true,
+       description: 'Enable regexp for ClientPattern matching')
+
+option('toolbar', type: 'boolean', value: true,
+       description: 'Enable Toolbar')
+
+option('shape', type: 'boolean', value: true,
+       description: 'Enable X11 xext nonrectangular window shapes')
+
+option('xft', type: 'boolean', value: true,
+       description: 'Enable XFT font support')
+
+option('xmb', type: 'boolean', value: true,
+       description: 'Enable XMB (multi-byte)')
+
+option('xpm', type: 'boolean', value: true,
+       description: 'Enable XPM (pixmap)')
+
+# DIRECTORIES
+
+#option('docs', type: 'boolean', value: false,
+#       description: 'Build documentation from source (release tarballs contain a generated copy)')
+#
+#option('mans', type: 'boolean', value: false,
+#       description: 'Build manpages from source (release tarballs contain a generated copy)')
+#
+#option('docdir', type: 'string', value: '',
+#       description: 'documentation directory (default: $datadir/docs/synebox)')

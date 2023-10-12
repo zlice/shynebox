@@ -1,0 +1,39 @@
+# Wildcard + in any subdir.
+*.o
+
+# Exact filename in any subdir.
+.deps
+.dirstamp
+Makefile
+Makefile.in
+
+# Exact wildcard, e.g., not in subdirs.
+/build*
+/doc/*.1
+/doc/*.5
+/doc/*/*.1
+/doc/*/*.5
+/nls/*/*.cat
+/nls/*/generated-*.m
+/m4/*.m4
+
+# Exact match, if a directory then everything in directory.
+/aclocal.m4
+/autom4te.cache/
+/config.h
+/config.h.in
+/config.log
+/config.status
+/configure
+/data/apps
+/data/init
+/data/menu
+/sbrun
+/sbsetroot
+/shynebox
+/libtk.a
+/src/defaults.cc
+/src/defaults.hh
+/stamp-h1
+/util/startshynebox
+/version.h

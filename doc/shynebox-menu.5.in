@@ -1,0 +1,531 @@
+'\" t
+.\"     Title: shynebox-menu
+.\"    Author: zlice https://github.com/zlice/shynebox
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 11 October 2023
+.\"    Manual: Shynebox Manual
+.\"    Source: shynebox-menu.txt
+.\"  Language: English
+.\"
+.TH "SHYNEBOX\-MENU" "5" "11 October 2023" "shynebox\-menu\&.txt" "Shynebox Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+shynebox-menu \- shynebox(1) menu syntax
+.SH "SYNOPSIS"
+.sp
+@pkgdatadir@/menu
+.sp
+~/\&.shynebox/menu
+.sp
+~/\&.shynebox/windowmenu
+.SH "SYNTAX"
+.sp
+Variable parameters are shown in emphasis: \fIargument\fR
+.sp
+All other characters shown are required verbatim\&. Whitespace is only required to delimit words, but it is fine to add more whitespace\&.
+.SH "DESCRIPTION"
+.sp
+There are two default menus in shynebox that can be configured\&.
+.sp
+The first is the \fBROOT MENU\fR, which is bound to a right\-click desktop by default\&. This same syntax is used for the \fBCustomMenu\fR command, mentioned in \fBshynebox\-keys(5)\fR\&.
+.sp
+Shynebox installs a default root menu file in \fB@pkgdatadir@/menu\fR ("shynebox \-i" will confirm this location)\&. By convention, this is copied to \fB~/\&.shynebox/menu\fR per\-user\&. That means this system\-wide menu can be customized to change the default for all users at once, while still allowing users to modify their individual menu file\&. To change where this file resides, users can update the \(oqinit\(cq config, described under \fBCONFIG\fR in \fBshynebox(1)\fR or the same section below\&.
+.sp
+The second type is the \fBWINDOW MENU\fR, which defines the contents of the menu which appears when you right\-click on a window\(cqs titlebar or iconbar item\&. This menu\(cqs default filename is \fB~/\&.shynebox/windowmenu\fR, and the default system location \fB@pkgdatadir@/windowmenu\fR\&.
+.sp
+You do not need to \(lqreload\(rq shynebox after editing either menu file, the changes should be picked up the next time you open the menu\&.
+.sp
+(Note: old fluxbox menu tools should be compatible, but some look for outdated programs\&. If the tool is really old, it may have items not compatible with shynebox\&.)
+.SH "ROOT MENU"
+.sp
+The root menu must begin with a \fB[begin]\fR tag and end with an \fB[end]\fR tag, and every tag must be on its own line\&. There are up to four fields in a menu line\&. They are of the form:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[\*(Aqtag\*(Aq] (\*(Aqlabel\*(Aq) {\*(Aqcommand\*(Aq} <\*(Aqicon\*(Aq>
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The <\*(Aqicon\*(Aq> field is always optional when shown below\&. If specified, the \fIicon\fR will be scaled down and displayed in the menu alongside the text label of the item\&. It must be in \&.xpm or \&.png format\&.
+.sp
+Any line that starts with a \fI#\fR or \fI!\fR is considered a comment and ignored by shynebox\&. Also, in the label/command/filename fields you can escape any character\&. Using \fI\e\e\fR inserts a literal back\-slash into the field\&.
+.sp
+You may enter labels, commands, and icons using characters from any \fBiconv(1)\fR language/locale by specifying the encoding used via the \fB[encoding]\fR tag, detailed below\&.
+.SS "Structural Tags"
+.PP
+\fB[begin]\fR (\fItitle\fR)
+.RS 4
+This tells shynebox to start parsing the menu file\&. This tag is required for shynebox to read your menu file\&. If it cannot find it, the system default menu is used in its place\&. The
+\fItitle\fR
+appears at the top of the menu\&. And
+\fB[end]\fR
+tag is required to end the menu\&.
+.RE
+.PP
+\fB[submenu]\fR (\fIlabel\fR) {\fItitle\fR} <\*(Aqicon\*(Aq>
+.RS 4
+This tells shynebox to create and parse a new menu, which is inserted as a submenu into the parent menu\&. These menus are parsed recursively, so there is no limit to the number of levels or nested submenus you can have\&. The
+\fIlabel\fR
+is the text that will appear in the parent menu, and the
+\fItitle\fR
+is shown at the top of the submenu\&. If omitted, the
+\fItitle\fR
+will be the same as the
+\fIlabel\fR\&. An
+\fB[end]\fR
+tag is required to end the submenu\&.
+.RE
+.PP
+\fB[end]\fR
+.RS 4
+This tells shynebox that it is at the end of a menu\&. This can either be a
+\fB[submenu]\fR
+or the
+\fB[begin]\fR
+tag of the main root menu\&. There must be at least one of these tags in your menu to correspond to the required
+\fB[begin]\fR
+tag, and one for each
+\fB[submenu]\fR\&.
+.RE
+.PP
+\fB[encoding]\fR {\fIencoding\fR}
+.RS 4
+This begins an
+\fB[encoding]\fR
+section and specifies the string encoding of all strings until the matching
+\fB[endencoding]\fR
+tag\&. For a list of available encodings on your system, run
+\fBiconv \-l\fR\&.
+.RE
+.PP
+\fB[endencoding]\fR
+.RS 4
+This ends an
+\fB[encoding]\fR
+section\&.
+.RE
+.PP
+\fB[include]\fR (\fIpath\fR)
+.RS 4
+Parses the file specified by filename inline with the current menu\&. The
+\fIpath\fR
+can be the full path to a file or it can begin with
+\fB~/\fR, which will be expanded into your home directory\&. If
+\fIpath\fR
+is a directory, then all files in that directory are included\&.
+.RE
+.PP
+\fB[separator]\fR
+.RS 4
+This will create a nice separation line\&. Useful for splitting up sections in a \(lqpretty\(rq way\&. The optional
+\fIcomment\fR
+is not displayed, but can be useful for internal documentation or script parsing of menu files\&.
+.RE
+.PP
+\fB[nop]\fR (\fIlabel\fR) <\*(Aqicon\*(Aq>
+.RS 4
+Insert a non\-operational item into the current menu\&. This is much like
+\fB[separator]\fR, but instead of a line, it inserts a
+\fIlabel\fR\&. This can be used to help format the menu into blocks or sections if so desired\&. The
+\fIlabel\fR
+is optional, and if omitted a blank item will be inserted\&.
+.RE
+.SS "Applications"
+.PP
+\fB[exec]\fR (\fIlabel\fR) {\fIcommand\&...\fR} <\*(Aqicon\*(Aq>
+.RS 4
+Inserts a command item into the menu\&. When you select the menu item from the menu, shynebox runs
+\fIcommand\&...\fR
+in your
+\fB$SHELL\fR
+(or /bin/sh if $SHELL is not set)\&. You can use this to launch applications, run shell scripts, etc\&. Since all arguments are passed verbatim to the shell, you can use environment variables, pipes, or anything else the shell can do\&. Note that processes only see environment variables that were set before shynebox started (such as in ~/\&.shynebox/startup)\&.
+.RE
+.SS "Shynebox Functions"
+.PP
+\fB[config]\fR (\fIlabel\fR) <\*(Aqicon\*(Aq>
+.RS 4
+Inserts a shynebox native submenu item, containing numerous configuration options concerning window placement, focus style, window moving style, etc\&. See
+\fBConfiguration Menu\fR
+in
+\fBshynebox(1)\fR
+for details\&.
+.RE
+.PP
+\fB[reconfig]\fR (\fIlabel\fR) <\*(Aqicon\*(Aq>
+.RS 4
+When selected this item re\-reads the current style and menu files and applies any changes\&. This is useful for creating a new style or theme, as you don\(cqt have to constantly restart shynebox every time you save your style\&. However, shynebox automatically rereads the menu whenever it changes\&.
+.RE
+.PP
+\fB[restart]\fR (\fIlabel\fR) {\fIcommand\fR} <\*(Aqicon\*(Aq>
+.RS 4
+This tells shynebox to restart\&. If
+\fIcommand\fR
+is supplied, it shuts down and runs the command (which is commonly the name of another window manager)\&. If
+\fIcommand\fR
+is omitted, shynebox restarts itself\&.
+.RE
+.PP
+\fB[exit]\fR (\fIlabel\fR) <\*(Aqicon\*(Aq>
+.RS 4
+Inserts an item that shuts down and exits shynebox\&. Any open windows are reparented to the root window before shynebox exits\&.
+.RE
+.PP
+\fB[style]\fR (\fIlabel\fR) {\fIfilename\fR} <\*(Aqicon\*(Aq>
+.RS 4
+This tells shynebox to insert an item that, when selected, reads style file named filename and apply the new textures, colors and fonts to the current running session\&.
+.RE
+.PP
+\fB[stylesmenu]\fR (\fIdirectory\fR) <\*(Aqicon\*(Aq>
+.RS 4
+Reads all filenames from the specified directory, assuming that they are all valid style files, and creates inline menu items in the current menu for every filename, that, when selected by the user will apply the selected style file to the current session\&. The labels that are created in the menu are the filenames of the style files\&.
+.RE
+.PP
+\fB[stylesdir]\fR (\fIlabel\fR) {\fIdirectory\fR} <\*(Aqicon\*(Aq>
+.RS 4
+Creates a submenu entry with
+\fIlabel\fR
+(that is also the title of the new submenu), and inserts in that submenu all filenames in the specified
+\fIdirectory\fR, assuming that they are all valid style files (directories are ignored) in the same way as the
+\fB[stylesdir]\fR
+command does\&. Both
+\fB[stylesdir]\fR
+and
+\fB[stylesmenu]\fR
+commands make it possible to install style files without editing your init file\&.
+.RE
+.PP
+\fB[wallpapers]\fR (\fIdirectory\fR) {\fIcommand\fR} <\*(Aqicon\*(Aq>
+.RS 4
+This inserts a menu item to set the wallpaper for each file in the given directory\&. The
+\fIcommand\fR
+is optional, and defaults to
+\fBsbsetbg\fR\&.
+.RE
+.PP
+\fB[workspaces]\fR (\fIlabel\fR) <\*(Aqicon\*(Aq>
+.RS 4
+This tells shynebox to insert a link to the workspaces menu directly into your menu\&. See
+\fBWorkspace Menu\fR
+in
+\fBshynebox(1)\fR
+for details\&.
+.RE
+.PP
+\fB[\fR\fIcommand\fR\fB]\fR (\fIlabel\fR) <\*(Aqicon\*(Aq>
+.RS 4
+In addition to the commands above, any legal keys file
+\fIcommand\fR
+may be used as a menu item\&. See
+\fBshynebox\-keys(5)\fR
+for more information\&.
+.RE
+.SH "WINDOW MENU"
+.sp
+The syntax for the Window Menu is mostly identical to that for the \fBROOT MENU\fR; it must start with \fB[begin]\fR and end with \fB[end]\fR, and may have any of the above tags\&. However, it may also contain any of the following window\-specific \fB[\fR\fItag\fR*]*s, which each must be on a line by itself with no labels, commands, or icons\&.
+.sp
+The additional available tags in this menu are:
+.PP
+\fB[shade]\fR
+.RS 4
+Shade or unshade (roll\-up to only a titlebar) the window\&.
+.RE
+.PP
+\fB[stick]\fR
+.RS 4
+Stick or unstick the window\&. (Stuck windows are displayed on all workspaces)\&.
+.RE
+.PP
+\fB[iconify]\fR
+.RS 4
+Iconify (minimize) the window\&.
+.RE
+.PP
+\fB[maximize]\fR
+.RS 4
+Maximize or unmaximize the window\&. The button with which you click alters the behavior of this item as follows:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Button 1 (Un)Maximize as normal\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Button 2 (Un)Maximize window vertically\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Button 3 (Un)Maximize window horizontally\&.
+.RE
+.RE
+.PP
+\fB[settitledialog]\fR
+.RS 4
+Opens a dialog to change the title\&.
+.RE
+.PP
+\fB[raise]\fR
+.RS 4
+Raise the window to the top of the stack within its layer\&.
+.RE
+.PP
+\fB[lower]\fR
+.RS 4
+Lower the window to the bottom of the stack within its layer\&.
+.RE
+.PP
+\fB[sendto]\fR
+.RS 4
+Sends the window to a different workspace\&. When you select the workspace with a middle\-click, shynebox will also change to the new workspace\&. A regular click only sends the window\&.
+.RE
+.PP
+\fB[layer]\fR
+.RS 4
+\(lqLayer\&...\(rq submenu which lets you change the layer of this window\&.
+.RE
+.PP
+\fB[remember]\fR
+.RS 4
+Adds the \(lqRemember\&...\(rq menu item, which allows you to specify which settings should be stored in the \(oqapps\(cq file (See
+\fBshynebox\-apps(5)\fR
+for more details)\&.
+.RE
+.PP
+\fB[separator]\fR
+.RS 4
+Adds a horizontal line to the menu\&.
+.RE
+.PP
+\fB[close]\fR
+.RS 4
+Closes the window gracefully\&.
+.RE
+.PP
+\fB[kill]\fR
+.RS 4
+Kills the window\(cqs process, like
+\fBxkill(1)\fR\&.
+.RE
+.SH "FILES"
+.PP
+\fB~/\&.shynebox/menu\fR
+.RS 4
+This is the default location for the user\(cqs root menu\&.
+.RE
+.PP
+\fB@pkgdatadir@/menu\fR
+.RS 4
+This is the system\-wide root menu file\&. It will be copied if the user\(cqs root menu is missing\&.
+.RE
+.PP
+\fB~/\&.shynebox/windowmenu\fR
+.RS 4
+This is the default location for the user\(cqs window menu\&.
+.RE
+.PP
+\fB@pkgdatadir@/menu\fR
+.RS 4
+This is the default window menu\&. It will be copied if the user\(cqs window menu is missing\&.
+.RE
+.SH "CONFIG"
+.PP
+\fBmenuFile:\fR \fIlocation\fR
+.RS 4
+The location of the user\(cqs root menu\&.
+.RE
+.PP
+\fBwindowMenuFile:\fR \fIlocation\fR
+.RS 4
+The location of the user\(cqs window menu\&.
+.RE
+.SH "ENVIRONMENT"
+.sp
+The \fIcommand\&...\fR field of the \fB[exec]\fR tag can take advantage of other environment variables if they are set before shynebox is started\&.
+.SH "EXAMPLES"
+.PP
+\fBRoot Menu\fR. 
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# shynebox menu file
+[begin] (shynebox)
+    [exec] (urxvt) {urxvt \-ls} </usr/share/pixmaps/rxvt\-unicode\&.png>
+    [exec] (The GIMP) {gimp}
+    [exec] (Vim) {rxvt \-geometry 132x60 \-name VIM \-e screen vim}
+    [exec] (Mutt) {rxvt \-name mutt \-e mutt}
+    [submenu] (mozilla)
+        [exec] (browser) {firefox}
+        [exec] (mail) {thunderbird}
+    [end]
+    [submenu] (Window Manager)
+        [exec] (Edit Menus) {nedit ~/\&.shynebox/menu}
+        [submenu] (Style) {Which Style?}
+            [stylesdir] (~/\&.shynebox/styles)
+            [stylesmenu] (shynebox Styles) {@pkgdatadir@/styles}
+        [end]
+        [config] (Config Options)
+        [reconfig] (Reconfigure)
+        [restart] (Restart)
+    [end]
+    [exit] (Log Out)
+[end]
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fBDefault Window Menu\fR. 
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[begin]
+  [shade]
+  [stick]
+  [iconify]
+  [maximize]
+  [settitledialog]
+  [raise]
+  [lower]
+  [sendto]
+  [layer]
+  [remember]
+  [separator]
+  [close]
+[end]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "AUTHORS"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+zlice updated for shynebox
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Jim Ramsay <i\&.am at jimramsay com> (>fluxbox\-1\&.0\&.0)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Curt Micol <asenchi at asenchi com> (>fluxbox\-0\&.9\&.11)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Tobias Klausmann <klausman at users sourceforge net> (\(lafluxbox\-0\&.9\&.11)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Grubert <grubert at users sourceforge net> (fluxbox)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Matthew Hawkins <matt at mh dropbear id au> (blackbox)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Wilbert Berendsen <wbsoft at xs4all nl> (blackbox)
+.RE
+.SH "SEE ALSO"
+.sp
+shynebox(1) shynebox\-keys(5) shynebox\-apps(5) xkill(1) iconv(1)
+.SH "AUTHOR"
+.PP
+\fBzlice https://github\&.com/zlice/shynebox\fR
+.RS 4
+Author.
+.RE

@@ -1,0 +1,36 @@
+CLEANFILES += \
+	doc/sbrun.1 \
+	doc/sbsetbg.1 \
+	doc/sbsetroot.1 \
+	doc/shynebox-apps.5 \
+	doc/shynebox-keys.5 \
+	doc/shynebox-menu.5 \
+	doc/shynebox-style.5 \
+	doc/shynebox.1 \
+	doc/startshynebox.1
+
+dist_man_MANS = \
+	doc/sbrun.1 \
+	doc/sbsetbg.1 \
+	doc/sbsetroot.1 \
+	doc/shynebox-apps.5 \
+	doc/shynebox-keys.5 \
+	doc/shynebox-menu.5 \
+	doc/shynebox-style.5 \
+	doc/shynebox.1 \
+	doc/startshynebox.1
+
+EXTRA_DIST += \
+	doc/sbrun.1.in \
+	doc/sbsetbg.1.in \
+	doc/sbsetroot.1.in \
+	doc/shynebox-apps.5.in \
+	doc/shynebox-keys.5.in \
+	doc/shynebox-menu.5.in \
+	doc/shynebox-style.5.in \
+	doc/shynebox.1.in \
+	doc/startshynebox.1.in
+
+doc/%: doc/%.in
+	$(MKDIR_P) doc
+	@regex_cmd@ -e "s,@pkgdatadir[@],$(pkgdatadir)," $^ > $@

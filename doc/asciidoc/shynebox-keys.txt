@@ -1,0 +1,631 @@
+shynebox-keys(5)
+===============
+zlice https://github.com/zlice/shynebox
+v2023.1.0, 11 October 2023
+:man source:   shynebox-keys.txt
+:man version:  {revision}
+:man manual:   Shynebox Manual
+
+NAME
+----
+shynebox-keys - keyboard shortcuts configuration for shynebox(1)
+
+SYNOPSIS
+--------
+~/.shynebox/keys
+
+SYNTAX
+------
+Variable parameters are shown in emphasis: 'argument'
+
+Optional parameters are shown in square brackets: ['argument']
+
+All other characters shown are required verbatim. Whitespace is required
+where shown, but it is fine to add more whitespace.
+
+DESCRIPTION
+-----------
+You can customize *shynebox(1)* hotkeys through the file pointed
+to by *keyFile* in your config (normally ~/.shynebox/keys).
+The file consists of lines of the basic format:
+
+*['modifiers'] 'key' :command ['arguments ...']*
+
+The space between the 'key' and the *:* before the 'command' is mandatory.
+
+All modifiers and commands are case-insensitive. Some command arguments
+(especially those that will be passed to the shell) are case-sensitive. Some
+key names are case-sensitive.
+
+Lines beginning with a '#' or '!' are considered comments and skipped.
+
+You will need to ``reload config'' shynebox after editing the keys file
+so it picks up your change.
+
+MODIFIERS
+---------
+You can get a list of possible modifiers by calling `xmodmap -pm'. This also
+shows you to which keys the modifiers are mapped, but the following modifiers
+are most commonly used:
+
+*Shift Control Mod1 Mod4 - Alt(Mod1) Ctrl(Control) Win(Mod4) Super(Mod4)*
+
+There are also some special modifiers that refer to cursor location for mouse button events:::
+*OnDesktop*;;
+  Cursor is over the desktop (root window), and not any window.
+*OnWindow*;;
+  Cursor is over a window.
+*OnTitlebar*;;
+  Cursor is over a window's titlebar.
+*OnTab*;;
+  Cursor is over a tab.
+*Double*;;
+  Limits this action to double-clicks only.
+
+To combine two or more modifiers, list them in any order like so:
+........
+Super OnWindow Mouse5 :command
+........
+
+
+KEYS
+----
+You may specify a key by its key name (for example, "a" or "space") or by
+its numeric keycode (for example, *38* or *0xf3*).
+
+If you don't know the name of a key, you can run *xev(1)* in a terminal,
+push the key, and see the name in the output (to filter only keyboard
+events use "*xev -event_mask keyboard*"). Some "special" keys do not
+produce a key name in the output of *xev(1)*, and will need to use
+the keycode (NOT the keysym!) in your keys file.
+
+To bind commands to mouse events ('N' denotes the number of the button,
+eg. '1' is the left button, '4'/'5' are the wheel buttons):
+
+*MouseN*;;
+  The mouse button 'N' is pressed down and held.
+*ClickN*;;
+  The mouse button 'N' is clicked (pressed and released with no
+  movement in between)
+
+There are some special "keys" that let you bind events to non-key/button
+events:
+
+*ChangeWorkspace*;;
+    Fires when the workspace changes. This can be used to change backgrounds or
+    do anything else you like when you switch to a new workspace. See the
+    *EXAMPLES* below for one idea.
++
+WARNING! Use caution with this event! For example, do NOT bind this to any
+action that changes your current workspace. If you break your shynebox with
+this feature, you get to keep the pieces.
+
+////////////////
+TODO: Advanced users only?
+*FocusIn* / *FocusOut*;;
+  Fires when the focus is given to or removed from a window. It may be
+  useful to combine this with the 'If' command, in the section *Special
+  Commands* below.
+*MouseOver* / *MouseOut*;;
+  Fires when the mouse cursor enters or leaves a specific area of the
+  screen. It may be useful to combine this with the 'On*' modifiers
+  detailed above and/or the 'If' command.
+////////////////
+
+CHAINING
+--------
+Key bindings can be chained in a fashion similar to Emacs key bindings using the
+syntax:
+
+'modifiers-1' 'key-1' 'modifiers-2' 'key-2' :command ['arguments ...']*
+
+To abort a chained command part-way through typing it, press the <ESC> key.
+
+To Bind CTRL+C CTRL+X (Which means, press CTRL+C then CTRL+X) to quit shynebox
+........
+Control c Control x :Quit
+........
+
+KEYMODES
+--------
+A user specified set of key mappings can be activated and de-activated
+on-the-fly using keymodes. Think of keymodes as multiple key binding layers.
+The syntax to define a mapping in a keymode is:
+
+*'keymode': 'modifiers' 'key' :command ['arguments ...']*
+
+Where 'keymode' is any alpha-numeric string name.
+
+When this keymode is activated (see the *KeyMode* command below), all bindings
+prefaced by that keymode name become active (and all other keybindings will be
+deactivated) until the keymode changes again.
+
+COMMANDS
+--------
+Some commands have multiple names which are shown below as:::
+  CMD1 | CMD2
+
+Related commands have been grouped below as:::
+  CMD1 / CMD2
+
+The commands are broken up into sections as follows:::
+- Mouse Commands
+- Window Commands
+- Workspace Commands
+- Menu Commands
+- Window Manager Commands
+- Special Commands
+
+Mouse Commands
+~~~~~~~~~~~~~~
+These commands may only be bound to mouse buttons (plus modifiers), not
+keystrokes. Where mouse motion is used, the action finishes when the
+mouse button is released.
+
+*StartMoving*::
+    Start dragging to move the window.
+
+*StartResizing* ['corner']::
+    Start dragging to resize the window as if you had grabbed the window
+    at the specified 'corner'.
++
+By default 'corner' is *BottomRight*, but may be overridden with one of:;;
+*NearestCorner NearestEdge NearestCornerOrEdge Center TopLeft Top TopRight
+Left Right BottomLeft Bottom BottomRight*
+
++
+*NearestCornerOrEdge* can take multiple arguments to determine corners:
+['pixel-size' ['percent-size']] where 'percent-size' defaults to 0, and
+the larger size will choose a corner. Or ['percent-size'%].
+'percent-size' is the percentage of half the window width or height.
+Defaults to 50 pixels and 30%.
+
+
+*StartTabbing*::
+    Start dragging to add this window to another's tabgroup.
+
+*ActivateTab*::
+    Activates the tab underneath the mouse.
+
+Window Commands
+~~~~~~~~~~~~~~~
+These commands ordinarily affect only the currently focused window. The
+*OnWindow* modifier and *ForEach* command may affect the window that is used.
+
+*Minimize* | *MinimizeWindow* | *Iconify*::
+    Minimize the current window, equivalent to the window button.
+
+*Maximize* | *MaximizeWindow*::
+    Maximize the current window, equivalent to the window button.
+
+*MaximizeHorizontal* / *MaximizeVertical*::
+    Maximize the current window in one direction only, leaving the other
+    dimension unchanged.
+
+*Fullscreen*::
+    Resize the window's content to fit the whole screen or monitor,
+    without any window decoration and temporarily put above all layers.
+
+*Raise* / *Lower*::
+    Reorder/lower a window to the top or bottom its *current* layer.
+    See *shynebox(1)* *LAYERS* section.
+
+*RaiseLayer* / *LowerLayer* ['offset']::
+    Raise/lower a window up or down a layer level.
+    See *shynebox(1)* *LAYERS* section.
+
+*SetLayer* 'layer'::
+    Move the window to the specified layer. The 'layer' should be
+    one of *ABOVEDOCK*, *DOCK*, *TOP*, *NORMAL*, *BOTTOM*, *DESKTOP*.
+    See *shynebox(1)* *LAYERS* section.
+
+*Close*::
+    Close the current window, equivalent to the window button.
+
+*Kill* | *KillWindow*::
+    Close a window that's not responding to *Close*, like using *xkill(1)*.
+
+*Shade* | *ShadeWindow*::
+    Toggle the *shaded* state of the current window, equivalent to the
+    window button. A *shaded* window appears as only the title bar.
+
+*ShadeOn* / *ShadeOff*::
+    Set the *shaded* state of the window to On / Off.
+
+*Stick* | *StickWindow*::
+    Toggle the *sticky* state of the current window, equivalent to the
+    window button. A *sticky* window is visible on all workspaces.
+
+*SetDecor* 'decor'::
+    Sets which window decorations will be shown. The 'decor' has the
+    same format as the `[Deco]' parameter in the apps file.
+    See 'shynebox-apps(5)' for more info.
+
+*SetTitleDialog*::
+    Opens a dialog to set the name of the current window.
+    Title changes are ignored until set to an empty string.
+
+*ToggleDecor*::
+    Toggles the presence of the window decorations (title bar, window
+    buttons, and resize bar).
+
+*NextTab* / *PrevTab*::
+    Cycle to the next / previous tab in the current tab group.
+
+*Tab* 'number'::
+    Cycle to the given tab in the current tab group, where *1* is the
+    first tab. A negative 'number' counts from the end of the tab group
+    (*-1* is the last tab, *-2* is the next-to-last, etc.).
+
+*MoveTabRight* / *MoveTabLeft*::
+    Reorder the tabs in the current tab group, swapping the current tab
+    with the one to the right / left.
+
+*DetachClient*::
+    Remove the current tab from the tab group, placing it in its own window.
+
+*ResizeTo* 'width[%]' 'height[%]'::
+    Resizes the window to the given width and height. If the value is
+    given in percent, then the window size will be based on the current
+    *screen's* size.
+
+*Resize* 'delta-width[%]' 'delta-height[%]'::
+    Resizes the window relative to the current width and height. If the
+    value is given in percent, then the window size will be based on
+    the current window's size.
+
+*ResizeHorizontal* 'delta-width[%]' / *ResizeVertical* 'delta-height[%]'::
+    Resizes the window in one dimension only. If the value is given in
+    percent, then the window size will be based on the current window's size.
+
+*MoveTo* 'x[%]' 'y[%]' ['anchor']::
+    Moves the window to the given coordinates, given in pixels or relatively to
+    the current screen size if % is specified after the value.
++
+If either 'x' or 'y' is set to *\**, that coordinate will be ignored, and the
+movement will only take place in one dimension.
++
+The default 'anchor' is the upper left corner, but may be one of:;;
+*TopLeft Left BottomLeft Top Center Bottom TopRight Right BottomRight*
+
+*Move* 'delta-x' 'delta-y'::
+    Moves the window relative to its current position. Positive numbers
+    refer to right and down, and negative to left and up, respectively.
+
+*MoveRight* 'd' / *MoveLeft* 'd' / *MoveUp* 'd' / *MoveDown* 'd'::
+    Moves the window relative to its current position by the number of
+    pixels specified in 'd'. If the number is negative, it moves in the
+    opposite direction.
+
+*TakeToWorkspace* 'workspace' / *SendToWorkspace* 'workspace'::
+    Sends the current window to a workspace. Take will also take
+    you to that workspace. The first workspace is number *1*, not 0.
+
+*TakeToNextWorkspace* ['offset'] / *TakeToPrevWorkspace* ['offset'] / *SendToNextWorkspace* ['offset'] / *SendToPrevWorkspace* ['offset']::
+    Sends/takes current window/you, to the next or previous workspace.
+    If you set 'offset' to a value greater than the default of *1*, it will
+    move you that number of workspaces ahead or behind. If you go
+    beyond the end of the currently defined workspaces, it will wrap
+    around to the other end automatically.
+
+*SetHead* 'number'::
+    Moves the window to the given display head/monitor.
+
+*SendToNextHead* ['offset'] / *SendToPrevHead* ['offset']::
+    Sends the current window to the next/previous display head. If you
+    specify an 'offset' greater than *1*, it will move the window that many
+    heads. If this takes the window beyond the total number of heads, it
+    will wrap around to the beginning.
+
+*SetXProp* 'PROP=value'::
+    Sets the xproperty 'PROP' of the current window to 'value'. Delete the
+    content of 'PROP' by using 'PROP='.
+
+Workspace Commands
+~~~~~~~~~~~~~~~~~~
+These commands affect the entire workspace (or "desktop" as it is sometimes
+called).
+
+*AddWorkspace* / *RemoveLastWorkspace*::
+    Adds or removes a workspace from the end of the list of workspaces.
+
+*NextWorkspace* ['n'] / *PrevWorkspace* ['n'] / *RightWorkspace* ['n'] / *LeftWorkspace* ['n']::
+    Switch to the Next / Previous workspace. All versions accept an
+    offset value 'n', which defaults to *1* and refers to the number of
+    workspaces to move at one time. {Next,Prev}Workspace wrap around when
+    going past the last workspace, whereas {Right,Left}Workspace do not.
+    The special offset "0" will toggle the former workspace for Next- and
+    PrevWorkspace
+
+*Workspace* 'number'::
+    Jumps to the given workspace 'number'. The first workspace is *1*.
+
+*NextWindow* [{'options'}] ['pattern'] / *PrevWindow* [{'options'}] ['pattern']::
+    Focuses the next / previous window in the focus list.
++
+'options' is one or more of the following, space delimited:;;
++
+--
+  *static*;;
+    Instead of moving in order of most-recent focus, move in
+    order of when the window was opened (or, the order shown in
+    the iconbar).
+  *groups*;;
+    Only include the current tab in windows with multiple tabs.
+--
++
+If 'pattern' arguments are supplied, only windows that match all the
+patterns are considered - all others are skipped. See the section *CLIENT
+PATTERNS* below for more information.
++
+This pair of commands has a special side-effect when the keybinding used has a
+modifier - It will temporarily raise the cycled window to the front so you can
+see it, but if you continue holding down the modifier and press the key again
+(For example, keep holding "Alt" while you tap the "Tab" key a few times),
+shynebox will lower the window again when you move on to the next one. This
+allows you to preview the windows in order, but does not change the order in
+doing so.
+
+*NextGroup* [{'options'}] ['pattern'] / *PrevGroup* [{'options'}] ['pattern']::
+    Equivalent to NextWindow / PrevWindow above, but with the *groups*
+    option forced on.
+
+*GotoWindow* 'number' [{'options'}] ['pattern']::
+    Focuses and activates the window at position 'number' in the focus
+    list. The 'options' and 'pattern' arguments have the same meaning as
+    *NextWindow* above.
+
+*Activate* ['pattern'] | *Focus* ['pattern']::
+    With 'pattern', this is an alias for *GoToWindow* 1 'pattern'. Without,
+    this behaves like a window command, so that OnWindow events can change
+    the focused window.
+
+*Attach* 'pattern'::
+    Combines all windows that match the 'pattern' into a single tab group.
+
+*ArrangeWindows* 'pattern' / *ArrangeWindowsVertical* 'pattern' / *ArrangeWindowsHorizontal* 'pattern'::
+    Tries to tile all windows on the current workspace so that the desktop is not
+    visible. *ArrangeWindowsVertical* prefers vertical splits (windows side by
+    side), whereas *ArrangeWindowsHorizontal* prefers horizontal splits (windows
+    on top of each other).
++
+When using multi-monitors, the *acting monitor* is the one the mouse
+is on. See *CLIENT PATTERNS* for more about the 'pattern' arguments.
+See *shynebox(1)* for how *struts* may affect spacing.
+
+*ArrangeWindowsStackLeft* 'pattern' / *ArrangeWindowsStackRight* 'pattern' / *ArrangeWindowsStackTop* 'pattern' / *ArrangeWindowsStackBottom* 'pattern'::
+    Similar to *ArrangeWindows* but will find a "main" window and give it
+    half of the screen/monitor, then stack other windows in a given
+    direction. Either the focused or last window will become the "main"
+    window, depending on multi-monitor setup.
++
+*ArrangeWindowsStackLeft* puts the main window on the RIGHT hand side
+of the screen, and stacks the tiled windows are on the LEFT hand
+side of the screen.
+
+*Unclutter* 'pattern'::
+    Re-place all pattern-matching windows on the current workspace
+    with current 'Placement Strategy'. Windows are not resized.
+    See *shynebox(1)* for more on 'Placement Strategies'.
+
+*ShowDesktop*::
+    Minimizes all windows on the current workspace. If they are already all
+    minimized, then it un-minimizes all of them.
+
+*ToggleToolbarAbove*::
+    Toggles the toolbar to the the AboveDock layer.
+
+*ToggleToolbarVisible*::
+    Toggles the toolbar's autohiding state (*toolbar.autoHide* doesn't
+    have to be enabled.  but this is different than *toolbar.visible*
+    in `init' config).
+
+*SetWorkspaceNameDialog*::
+    Opens a dialog to set the name of the current workspace.
+
+*CloseAllWindows*::
+    Closes all windows on all desktops.
+
+Menu Commands
+~~~~~~~~~~~~~
+These commands open or close shynebox popup menus. For more information
+on what these menus contain or how to configure them, see *shynebox(1)*
+or *shynebox-menu(5)*.
+
+*RootMenu*;;
+    Opens the root menu.
+
+*WorkspaceMenu*;;
+    Opens the workspace menu.
+
+*WindowMenu*;;
+    Opens a menu containing actions for the current window.
+
+*ClientMenu* ['pattern']::
+    Opens a menu that contains all windows matching 'pattern'.
+    Selecting a window will jump to its workspace and raise it.
+    See *CLIENT PATTERNS* below for more details on the 'pattern' argument.
+
+*CustomMenu* 'path'::
+    Opens a custom menu file. This 'path' must be a valid menu file in the same
+    format as detailed by the *ROOT MENU* section of *shynebox-menu(5)*.
+
+*HideMenus*::
+    Hide all shynebox popup menus.
+
+Window Manager Commands
+~~~~~~~~~~~~~~~~~~~~~~~
+These commands affect the Window Manager and possibly all windows.
+
+*Restart* ['path']::
+    Restarts shynebox. This does not close any running applications.
+    The optional 'path' is assumed to be an executable window manager,
+    that manager is started in place of shynebox.
+
+*Quit* | *Exit*::
+    Exits shynebox. This will normally cause X to stop as well and
+    terminate all existing applications, returning you to the login
+    manager or console.
+
+*Reconfig* | *Reconfigure*::
+    Reloads all shynebox configuration files including the keys file, apps
+    file, style/themes and init file, if they have changed.
+
+*SetStyle* 'path'::
+    Sets the current style to that given in 'path', which must be the full
+    path to a shynebox style.
+
+*ReloadStyle*::
+    Reloads only the current style. Useful after editing a style which is
+    currently in use.
+
+*ExecCommand* 'args ...' | *Exec* 'args ...' | *Execute* 'args ...'::
+    You can use this to launch applications, run shell scripts, etc.
+    Passes all the arguments to your *$SHELL* (or /bin/sh if $SHELL is
+    not set). Since all arguments are passed verbatim to the shell, you
+    can use environment variables, pipes, or anything else the shell
+    can do. Note: processes only see environment variables that were
+    set before shynebox started (such as in *\~/.shynebox/startup*).
+    See *shynebox(1)* for more details on the *ENVIRONMENT* and
+    *~/.shynebox/startup* file.
+
+Special Commands
+~~~~~~~~~~~~~~~~
+These commands have special meanings or behaviors.
+
+*MacroCmd* {'command1'} {'command2'} {'command3'} '...'::
+    Allows you to execute more than one command with one keybinding. The
+    commands will be executed in series. The *{* *}* brackets are
+    required, as in the following example:
+
+    MacroCmd {MoveTo 0 0} {ResizeTo 1280 800}
+
+*Delay* {'command'} ['milliseconds']::
+    Delays running 'command' for a given amount of time. The time
+    'milliseconds' can also be denoted with 's' or 'm' for 'seconds'
+    or 'minutes' (e.g. "60s" or "1m"). If the same key binding is
+    activated again, the timer will be restarted.
+
+*ToggleCmd* {'command1'} {'command2'} '...'::
+    Alternates between the commands. On the first press of the bound
+    key, 'command1' runs, then 'command2' on the next press, so on.
+
+*KeyMode* 'keymode' ['return-keybinding']::
+    Activates the named 'keymode' (all key binding lines prefaced with
+    the same 'keymode:') and deactivates all other bindings until the
+    'return-keybinding' (by default *Escape*) is pressed. The default
+    keymode is named 'default'.
+
+*ForEach* {'command'} [{'condition'}] | *Map* {'command'} [{'condition'}]::
+    Runs the given 'command' (normally one from the *Window Commands*
+    section above) on each window. If you specify a 'condition' (See
+    *Conditions*, below) the action will be limited to matching windows.
+
+*If* {'condition'} {'then-command'} [{'else-command'}] | *Cond*  {'condition'} {'then-command'} [{'else-command'}]::
+    If the 'condition' command returns *true*, the 'then-command'
+    is ran, otherwise the optional 'else-command' is ran. See
+    *Conditions* below for more information on the 'condition' argument.
+
+Conditions
+~~~~~~~~~~
+These special commands are used to match windows conditionally. They are
+commonly used by the *If* and *ForEach* command.
+
+*Matches* 'pattern'::
+    Returns *true* if the current window matches the given 'pattern'. See *CLIENT
+    PATTERNS* below for details on the 'pattern' syntax.
++
+If your key binding uses the *OnWindow* modifier, it matches against the window
+you clicked, not the currently focused window.
++
+To check other windows besides the currently focused one, see the *Every* and
+*Some* conditions below.
+
+*Some* 'condition'::
+    Returns *true* if any window on any workspace (not just the currently
+    focused one) matches the 'condition'.
+
+*Every* 'condition'::
+    Returns *true* if every window on every workspace (not just the
+    current one) matches the 'condition'.
+
+*Not* 'condition'::
+    Returns *true* if 'condition' returns *false*, and vice-versa.
+
+*And* {'condition1'} {'condition2'} [{'condition3'} ...]::
+    Returns *true* if and only if all given conditions return *true*.
+
+*Or* {'condition1'} {'condition2'} [{'condition3'} ...]::
+    Returns *true* if any of the listed conditions return *true*.
+
+*Xor* {'condition1'} {'condition2'} [{'condition3'} ...]::
+    Returns the boolean *xor* of the truth values for all conditions listed.
+
+For examples of *ForEach*, *If*, and 'Conditions' see @pkgdatadir@/keys the
+default keys file installed with shynebox.
+
+CLIENT PATTERNS
+---------------
+Many of the more advanced commands take a 'pattern' argument, which allows you
+to direct the action at a specific window or set of windows which match the
+properties specified in the 'pattern'.
+
+include::client-patterns.txt[]
+
+FILES
+-----
+*~/.shynebox/keys*::
+    This is the default location for the keybinding definitions.
+*/usr/include/X11/keysymdef.h*::
+    X key names are in this file.
+
+CONFIG
+------
+*keyFile:* 'location'::
+    This may be set to override the location of the keybinding definitions.
+
+ENVIRONMENT
+-----------
+Remember that *ExecCommand* command can take advantage of other environment
+variables if they are set before shynebox is started.
+For example, if *$TERM* is set, it could be use like this:
+
+...........................
+Mod1 x :ExecCommand $TERM
+...........................
+
+For more information about environment variables, see your shell's manual.
+
+EXAMPLES
+--------
+Here are some interesting and/or useful examples you can do with your keys
+file. You can find more in the default keys file @pkgdatadir@/keys.
+
+..................
+# Mod4+drag moves a window
+OnWindow Mod4 Mouse1 :StartMoving
+
+# If any xterm windows are open, cycle through them. If none are open, open one:
+Mod4 t :If {Some Matches (xterm)} {NextWindow (xterm)} {Exec xterm}
+
+# Set a different wallpaper on every workspace:
+ChangeWorkspace :Exec sbsetbg ~/.shynebox/bg$(xprop -root _NET_CURRENT_DESKTOP | awk '{print $3}').png
+
+# Focuses the next window with it's xproperty 'PROP' set to 'foo'
+Mod4 p Mod4 Tab :NextWindow (@PROP=foo)
+..................
+
+
+AUTHORS
+-------
+- zlice updated for shynebox
+- Jim Ramsay <i.am at jimramsay com> (>fluxbox-1.0.0)
+- Curt Micol <asenchi at asenchi com> (>fluxbox-0.9.11)
+- Tobias Klausmann <klausman at users sourceforge net> (<=fluxbox-0.9.11)
+- Grubert <grubert at users sourceforge net> (fluxbox)
+- Matthew Hawkins <matt at mh dropbear id au> (blackbox)
+- Wilbert Berendsen <wbsoft at xs4all nl> (blackbox)
+
+SEE ALSO
+--------
+shynebox(1) xprop(1) xev(1) xkill(1) regex(7)

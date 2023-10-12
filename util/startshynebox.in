@@ -1,0 +1,69 @@
+#!/bin/sh
+
+command="`basename \"$0\"`"
+shynedir="@pkgprefix@shynebox@pkgsuffix@"
+if [ ! -z "$XDG_CONFIG_HOME" ] ; then
+    shynedir="$XDG_CONFIG_HOME/$shynedir"
+else
+    shynedir="$HOME/.$shynedir"
+fi
+startup="$shynedir/startup"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -c|--config)
+            if [ $# -lt 2 ]; then
+                echo "$command:error, missing argument"
+                exit 1
+            fi
+            shift
+            startup=$1
+        ;;
+        -h|--help) cat <<EOF
+Usage: $command [-h] [-c startupfile]
+EOF
+        exit
+        ;;
+    esac
+    shift
+done
+
+if [ -x "$startup" ]; then
+    exec "$startup"
+elif [ -r "$startup" ]; then
+    exec sh "$startup"
+else
+    if [ ! -d $shynedir ]; then
+        mkdir -p "$shynedir/backgrounds" "$shynedir/styles" "$shynedir/pixmaps"
+    fi
+    if [ ! -r "$startup" ]; then
+        ( cat << EOF
+#!/bin/sh
+#
+# shynebox startup-script:
+#
+# Lines starting with a '#' are ignored.
+
+# Change your keymap:
+xmodmap "$HOME/.Xmodmap"
+
+# Applications you want to run with shynebox.
+# MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN ''&'' AT THE END.
+#
+# unclutter -idle 2 &
+# wmnd &
+# wmsmixer -w &
+# idesk &
+
+# And last but not least we start shynebox.
+# Because it is the last app you have to run it with ''exec'' before it.
+
+exec @pkgprefix@shynebox@pkgsuffix@
+# or if you want to keep a log:
+# exec @pkgprefix@shynebox@pkgsuffix@ -log "$shynedir/log"
+EOF
+    ) > "$startup"
+    fi
+    chmod 644 "$startup"
+    exec sh "$startup"
+fi

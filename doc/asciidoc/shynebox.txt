@@ -1,0 +1,1197 @@
+shynebox(1)
+==========
+zlice https://github.com/zlice/shynebox
+v2023.1.0, 11 October 2023
+:man source:   shynebox.txt
+:man version:  {revision}
+:man manual:   Shynebox Manual
+
+NAME
+----
+shynebox - A lightweight window manager for the X Windowing System
+
+SYNOPSIS
+--------
+*shynebox* [-rc 'rcfile']
+           [-no-toolbar]
+           [-log 'logfile']
+           [-display 'display']
+           [-verbose]
+           [-sync]
+           [-v | -version]
+           [-h | -help]
+           [-i | -info]
+           [-list-commands]
+
+DESCRIPTION
+-----------
+*shynebox(1)* is a window manager that provides highly configurable window
+decorations, hotkeys and menus that can configure itself and launch applications.
+It can have multiple virtual-desktops called *Workspaces*. Has an optional
+toolbar that can show the current *workspace* name, list of open and/or
+minimized running applications, a *systray* and a *clock* with the current time.
+
+Shynebox uses its own graphics class to render its images on the fly. By using
+style files, you can determine in great detail how your desktop looks.
+Shynebox styles are compatible with those of Fluxbox 1.3.7 or earlier versions,
+so users migrating can still use their current favorite themes.
+(See *shynebox-styles(5)*)
+
+Keyboard and mouse button actions can be configured in the `keys' file.
+This powerful configuration file can be used to automate almost any action
+you may want to perform, from launching applications to moving windows
+around the screen.
+(See *shynebox-keys(5)*)
+
+Shynebox can also remember certain attributes of individual application
+windows and restore these settings the next time the window opens.
+(See *shynebox-apps(5)*)
+
+A majority of the Extended Window Manager Hints (EWMH) specification is supported,
+as well as numerous other Window Hinting standards. This enables features like
+reserving desktop space, positioning and geometry, extracting window image-icons
+and other hints that allow help windows to interact with each other.
+
+OPTIONS
+-------
+*-display* 'display'::
+    Start shynebox on the specified display. Programs started by shynebox
+    will share the DISPLAY environment variable also.
+*-h*, *-help*::
+    Display this command line usage.
+*-i*, *-info*::
+    Display useful information concerning the defaults and compiled-in
+    options.
+*-log* 'logfile'::
+    Dumps shynebox output to a log file.
+*-no-toolbar*::
+    Do not use the toolbar
+*-rc* 'rcfile'::
+    Use a different config file other than the default (typically *~/.shynebox/init*).
+*-v*, *-version*::
+    The version of shynebox installed.
+////////////////
+  TODO: want to remove multi-screen entirely.
+  commented the same in other areas.
+*-screen* all|'scr','scr'...::
+    Run on specified screens only or all (default is all, this is also
+    not tested. Recommend to use XRandr).
+////////////////
+*-verbose*::
+    Print more information in process.
+*-sync*::
+    Synchronize with the X server for debugging.
+*-list-commands*::
+    Lists all available internal commands (most of these are mapped
+    with the `keys' file).
+
+STARTING SHYNEBOX
+----------------
+*shynebox(1)* comes with a script called *startshynebox(1)*, usually located
+wherever you installed shynebox. This script provides a bootstrap to setup
+and launch shynebox with a per-user *startup* script located in
+*\~/.shynebox/startup*. To actually call shynebox and begin using it, you
+should place ``exec startshynebox'' in your *\~/.xinitrc*, *~/.xsession*, or
+xsession script such as */usr/share/xsessions/shynebox.desktop*, as the last
+executed command. Also, you may want to launch with 'dbus-run-session'.
+Then the environment variable *DBUS_SESSION_BUS_ADDRESS* can get picked
+up by other programs, or passed to them directly.
+
+    exec dbus-run-session startshynebox
+
+You can also rely on the *XDG_CONFIG_HOME* variable to put your configs
+in *\~/.config/shynebox*. Documentation refers to *~/.shynebox* but these
+paths are interchangeable. *XDG_CONFIG_HOME* is used over *HOME* when found.
+Some login and session managers may need *XDG_CONFIG_HOME* set manually.
+LXDM on my distro for example needs:
+
+    export XDG_CONFIG_HOME="$HOME/.config"
+
+A list of system wide default config files can be found with \'shynebox -i'.
+These are copied to users' config directories by shynebox on first time runs.
+
+On exit or restart, shynebox will save user configs in the file
+*~/.shynebox/init*. Config items in this file can be edited by hand,
+or through the *Config Menu* described ahead.
+See the *CONFIG* section for more details.
+
+USING SHYNEBOX
+-------------
+On first launch shynebox will have a *Toolbar* and an empty desktop.
+The desktop space can be used by other programs but shynebox itself
+does not have a way of configuring or using more than a background image.
+
+To get you familiar with shynebox, here is a list terms and definitions
+for the window manager:
+
+Root Window (Main)
+~~~~~~~~~~~~~~~~~~
+The desktop background. If you right-click (mouse button 3) the desktop,
+you can access the *Root Menu*. A middle-click (mouse button 2) on the
+desktop opens the *Workspace Menu*. See *MENUS* section ahead.
+
+Toolbar
+~~~~~~~
+The toolbar can contain the following tools:
+
+--
+*Workspace Name*:;;
+    Name of the current active workspace.
+    Left/Right click will go to the Prev/Next workspace.
+*Iconbar*:;;
+    List of windows managed by shynebox.
+    This list can changed by *Iconbar* in *Toolbar Menu* section.
+*System Tray*:;;
+    Area for docked apps like chat, mail, audio, networking, etc.
+*Clock*:;;
+    A clock with the date in the format of *strftime* (*date(1)*).
+*Button.<name>*:;;
+    A generic button with customizable a label and action(s).
+    The *CONFIG* section has more info on custom buttons.
+*Spacer_<n>*:;;
+    A spacer of pixel width n. (Default size 10.)
+--
+
+Workspace
+~~~~~~~
+A virtual desktop that holds Windows.
+
+Windows
+~~~~~~~
+By default, windows should behave like they do on most desktop systems.
+Grabbing the bottom right/left grips will start resizing. Left-click on the
+titlebar will raise and move the window. Double-clicking the titlebar will
+'shade' it and hide the window contents while leaving the titlebar.
+Right-clicking a titlebar will bring up a *Window Menu* described in *MENUS*.
+
+Tabs
+~~~~
+This has been common in browsers for a while, but as a window manager
+multiple applications of differing types can be put in one window.
+Shynebox allows windows to be tabbed by middle-click-dragging a window's
+titlebar out or onto another window. By default, tabs are located
+'internally' in a window's titlebar, but can be configured to be
+'external' along side-sections of windows.
+Configuration is discussed in *TAB OPTIONS* section.
+
+You can also set up automatic grouping using the `apps' file or use
+a *Placement Strategy* to add new windows to your current active window
+in a tab by default.
+See *GROUP SECTIONS* in *shynebox-apps(5)* and *windowPlacement* in *CONFIG*.
+
+Key Bindings
+~~~~~~~~~~~~
+This is what makes shynebox so powerful. Bindings can be configured to just
+about anything you can imagine with the keyboard and/or mouse. You can
+configure a simple key press to an action, multiple actions, key-modes
+(think \'layers' of a custom keyboard) and Emacs style chains. These key
+actions can have filters for which windows, workspaces, monitor(s)(heads)
+they do or don't act on, and can access a good amount of the internal
+functions of the window manager itself.
+All configured in a simple text file, for example:
+
+    Alt F4 :Close
+    Super r :Exec sbrun
+    Super l :Exec xscreensaver-command -lock
+
+The default bindings set up by shynebox are as follows:
+
+Mouse clicks on the empty desktop::
+
+    - *Left-click* (Button 1): hides all shynebox menus
+    - *Middle-click* (Button 2): shows the Workspace Menu
+    - *Right-click* (Button 3): shows the Root Menu
+
+Mouse gestures on a window::
+
+    - *ALT+Drag Left-click* anywhere on a window starts moving
+    - *ALT+Drag Right-click* anywhere on a window starts resizing
+
+Mouse gestures on a window's titlebar::
+
+    - *Middle-click-drag* on a window's titlebar to start attaching
+      to another window's tab group
+    - *Double Left-click* on a window's titlebar shades the window
+      (hides the window contents but leaves the titlebar)
+    - *Right-click* on a window's titlebar pops up the *Window Menu*
+
+Keyboard bindings::
+
+    - *ALT+Tab* / *ALT+Shift+Tab*: Cycle through windows (forward/backward)
+    - *WIN+Tab* / *WIN+Shift+Tab*: Cycle through tabs
+    - *WIN+1/2/3*: Select the 1st -> 3rd tab in the current window
+      (only 3 enabled by default)
+    - *ALT+F1*: Run *xterm(1)* to open a new terminal
+    - *ALT+F2*: Run *sbrun(1)* small ``run program'' dialog
+    - *ALT+F4*: Close the current window
+    - *ALT+F5*: Kill the current window (like *xkill(1)*, disabled by default)
+    - *ALT+F9*: Minimize (iconify) the current window
+    - *ALT+F10*: Maximize the current window
+    - *ALT+F11*: Fullscreen the current window
+    - *ALT+Space*: Open the *Window Menu*
+    - *CTRL+ALT+Del*: Exit shynebox (log out)
+    - *CTRL+ALT+Left/Right*: Go to the previous/next workspace
+    - *WIN+Left/Right*: Send the current window to the previous/next
+        workspace, but remain on this workspace
+    - *CTRL+WIN+LeftRight*: Take the current window to the previous/next
+        workspace, and switch to that workspace
+    - *CTRL+F1/F2/F3/F4*: Switch to the 1st -> 4th workspace
+    - *WIN+F1/F2/F3/F4*: Send the current window to a specific workspace
+    - *CTRL+WIN+F1/F2/F3/F4*: Take the current window to a specific workspace
+
+See *shynebox-keys(5)* for more details.
+
+MENUS
+-----
+Shynebox has customizable popup menus and also provides menus for
+configuration and window manager related functions.
+
+When a menu is open, you can navigate with mouse or keyboard, and even search
+items by name. Some special menu items react slightly differently depending
+on the mouse button you use. For example, some configuration items have min-max
+ranges with large values where a double-click will increase by more than a
+single digit.
+
+Normally, activating a menu item will close a menu and its submenus. You can
+also right-click the title area of a menu or press ``esc'' to close it without
+activating an item.
+
+See *shynebox-menu(5)* for customization.
+
+Root Menu
+~~~~~~~~~
+The root menu is where you can launch applications and change different
+aspects of shynebox. By default it is opened by right-clicking on an
+empty area of the desktop.
+
+The default Root Menu holds a special ``Shynebox menu'' with these items:
+
+*Configure*:::
+    For customizing the behavior and certain items of shynebox.
+    See *Configure Menu* section below for more details.
+
+*System Styles*:::
+    A list of system installed themes in *@pkgdatadir@/styles/*.
+    Changing themes takes effect immediately. (*STYLES* section ahead).
+
+*User Styles*:::
+    A list of themes in a user specific directory (*\~/.shynebox/styles*
+    and *~/.config/shynebox/styles*).
+
+*Workspace List*:::
+    Workspaces and windows, detailed below in *Workspace Menu*.
+
+*Reload config*:::
+    Use this to reload the shynebox configuration files. You must do this after
+    editing the `keys' file, `init' file, or the current style.
+
+*Restart*:::
+    Restarts a completely new shynebox process while leaving everything running.
+    Rereads files and redraws all graphical elements. Running applications will
+    be restored to the same workspaces they were previously in. This is useful
+    to do after testing multiple re-configs or styles.
+
+*Exit*:::
+    Exits shynebox, which in turn either shuts down the X Window server or
+    returns you to the graphical login screen.
+
+Configuration Menu
+~~~~~~~~~~~~~~~~~~
+This menu does exactly what it sounds like, configures shynebox. It contains
+many options which can be altered manually in the `init' file, but this is an
+easier and faster way to change the most common settings and see the effects
+on the fly.
+
+All changes take effect immediately and update your config file.
+
+*Focus Model*:::
+    Lets you configure the window focus model.
+    For details, see *FOCUS MODEL*, below.
+
+*Maximize Options*:::
+    Behavior of maximized/maximizing windows.
++
+--
+    *Full Maximization*:;;
+        Allows windows to maximize over screen space reserved by the toolbar
+        or other docked windows (like panels).
+    *Ignore Resize Increment*:;;
+        Ignores ``resize increment'' request of terminals and other windows.
+        These request tell a window manager to keep a window size to a specific
+        ratio for text or video rendering.
+    *Disable Moving* / *Disable Resizing*:;;
+        Maximized windows will ignore move/resize commands.
+--
+
+*Tab Options*:::
+    Lets you configure the properties of tabs.
+    Detailed in *TAB OPTIONS*, below.
+
+*Toolbar*:::
+    Lets you configure the toolbar.
+    See the *Toolbar Menu* section, below.
+
+*Opaque Window Moving*:::
+    If enabled, you will see the window content while dragging it.
+    Otherwise only an outline of the window will be shown.
+
+*Opaque Window Resizing*:::
+    If enabled, you will see the window content while resizing it.
+    Otherwise only an outline of the window will be shown.
+
+*Warp Horizontal / Warp Vertical*:::
+    Enables dragging windows from one workspace to another. When warping,
+    lower-numbered workspaces are up and/or left, and higher-numbered
+    workspaces are down below and/or right.
+
+Window Menu
+~~~~~~~~~~~
+This is the menu accessed by right-clicking on a titlebar.
+
+To customize this menu, see the *WINDOW MENU* section of *shynebox-menu(5)*.
+
+By default, this menu contains:
+
+*Shade*:::
+    Toggles shade on a window (display only titlebar).
+
+*Stick*:::
+    Toggles sticky attribute of a window.
+    A `stuck' window will always be displayed on all workspaces.
+
+*Iconify*:::
+    Toggles Minimized (Iconified) state of a window.
+
+*Maximize*:::
+    Toggles Maximization of a window. You can use the different mouse
+    buttons for the following:
+
+    - Button 1  (Un)Maximize as normal.
+    - Button 2  (Un)Maximize window vertically.
+    - Button 3  (Un)Maximize window horizontally.
+
+*Set Title*:::
+    Change the title of a window. This will not update until manually
+    changed back to an empty string. Then new updates will change
+    the title again.
+
+*Raise*:::
+    Raise the window above other windows in the same layer.
+
+*Lower*:::
+    Lower the window below other windows in the same layer.
+
+*Send To...*:::
+    Send window to another workspace.
+
+*Layer...*:::
+    Change the layer of this window. See *LAYERS* for more details.
+
+*Remember...*:::
+    Specify which window settings should be stored in the `apps' file and
+    remembered the next time this window is opened.
+    These settings are covered in more detail in *shynebox-apps(5)*.
+
+*Close*:::
+    Close the application softly.
+
+Workspace Menu
+~~~~~~~~~~~~~~
+By default the workspace menu can be found, by middle-clicking on the
+desktop or under the *Root Menu* -> Shynebox Menu and contains:
+
+*Icons*:::
+    This menu shows any iconified (minimized) windows. Clicking on a
+    window will take you to its workspace and raise it.
+
+*Workspaces*:::
+    Each workspace is shown as a submenu containing a list of all open
+    windows on that workspace. Clicking on a window will take you to it
+    and raise it.
+
+*New Workspace*:::
+    Adds a new workspace to the end of the list of current workspaces.
+    Workspaces without names in your `init' config will be named by
+    their number-id and added to your config.
+
+*Edit current workspace name*:::
+    Pops up a dialog to change the name of the current workspace.
+
+*Remove Last*:::
+    Remove the last workspace in the list. Any windows currently
+    there will be sent to the workspace before it.
+    This does not change your config file.
+
+Toolbar Menu
+~~~~~~~~~~~~
+This menu can be found in the *Configuration Menu*.
+
+All changes take effect immediately on the following:
+
+*Visible*:::
+    Sets the toolbar either to visible or invisible.
+
+*Auto hide*:::
+    This hides the toolbar until the mouse is in its designated area
+    and then re-hides when the mouse leaves the area.
+    See *CONFIG* for *autoRaiseDelay* delay time.
+
+*Auto raise*:::
+    If this is enabled the toolbar will raise its layer after the mouse pointer enters
+    for a period of time. It will lower when the cursor leaves the toolbar.
+    See *CONFIG* for *autoRaiseDelay* delay time.
+
+*Toolbar width percentage*:::
+    The percentage width of the toolbar in relation to the total size of the
+    screen/monitor. Use left/right clicks to de/increase the value from 1-100.
+
+*Claim Space*:::
+    Enabling this option will reserve screen space for the toolbar.
+    This space (called a strut) will not allow windows to maximize over the
+    area or new windows to be placed over/under the toolbar.
+
+*Layer...*:::
+    This sets the layer on which the toolbar is set.
+    (By default the toolbar is on DOCK or "Always on top" of windows.)
+
+*Head to place toolbar*:::
+    Which head (monitor) the toolbar should use. By default it is on the
+    first (primary) monitor. Head 0 goes across all screen space.
+
+*Placement*:::
+    What edge or corner of the screen the toolbar is placed.
+
+*Iconbar*:::
+    Configures how the Iconbar behaves.
++
+The first section changes what types of windows will be shown in the Iconbar:
++
+--
+*None*:;;
+    Will not show any windows.
+*Icons*:;;
+    Shows only minimized/iconified windows on all workspaces.
+*NoIcons*:;;
+    Shows only un-minimized windows on all workspaces.
+*WorkspaceIcons*:;;
+    Shows only minimized windows on the current workspace.
+*WorkspaceNoIcons*:;;
+    Shows windows on the current workspace that are not iconified.
+*Workspace*:;;
+    Shows all windows on the current workspace. (default)
+*All Windows*:;;
+    Shows all windows on all workspaces.
+
+--
++
+The next section specifies the alignment of the window names shown in the
+iconbar. The *Left/Right/Center* alignments will have a static width that
+is specified in the `init' file under *iconbar.iconWidth*:
++
+--
+*LEFT*:;;
+    All icons will be left-aligned.
+*CENTER*:;;
+    All icons will be center-aligned.
+*RELATIVE*:;;
+    All icons will be sized evenly and fill the iconbar completely.
+*RELATIVESMART*:;;
+    The iconbar will be filled completely but icons with long titles will be larger.
+*RIGHT*:;;
+    All icons will be right-aligned.
+
+--
++
+The last option in this submenu is:
++
+*Show Pictures*:;;
+    If enabled the iconbar will show the application's icon (if provided by the
+    application).
+
+*Clock*:::
+    Toggles 12h / 24h notation (00:00am - 11:59pm and 00:00 - 23:59)
+
+*Edit Clock Format*:::
+    Pop up a dialog window to change the clock format in *strftime* time
+    (*date(1)*).
+
+FOCUS MODEL
+-----------
+The Focus Model defines how windows gain focus (i.e. become the active
+window, which receives keyboard events). The focus model can be changed
+in the *Configuration Menu*.
+
+Window and tab focus can behave separately. Each of has two options:
+follows mouse and click to focus. Follows mouse means that windows will
+gain focus when the mouse moves over them. Click to focus (default) means
+that windows will gain focus when left-clicked.
+
+Window focus:
+
+*Click To Focus*::
+    Click to focus windows.
+*Mouse Focus*::
+    Window focus follows mouse.
+*Mouse Focus (Strict)*::
+    Like Mouse Focus, but no mouse movement is required, ie. the window is
+    also focused if it moves below the mouse, eg. because it shows up or you
+    change the virtual desktop.
+
+Tab focus:
+
+*ClickTabFocus*::
+    Click to focus tabs.
+*MouseTabFocus*::
+    Tab focus follows mouse.
+
+Additional settings in the ``Focus Model'' menu:
+
+*Focus New Windows*::
+    If enabled, a new window will grab X focus as it is opened.
+
+*Keep head*::
+    Refers to how focus reverts with multi-monitor setups.
+    See *focusSameHead* in *CONFIG* below.
+
+*Auto Raise Windows*::
+    If enabled, focusing on a new window will automatically raise that window
+    above all others within its layer. When disabled, you must explicitly raise
+    a focused window using the window menu, keybinding, or *Click Raises*.
+
+*Click Raises*::
+    If enabled, left-clicking on a window will raise it above all
+    other windows in the same layer.
+
+TAB OPTIONS
+-----------
+Tab options for the following:
+
+*Placement*::
+    Where external tabs will be positioned relative to the
+    window. For these options to work, `Tabs in Titlebar' must be off.
+
+*Tabs in Titlebar*::
+    Places tabs in window titlebars and the width is evenly divided
+    between tabs like `Iconbar Relative' alignment.
+
+*Maximize Over*::
+    When this option is on, maximizing a window will ignore the size and
+    location of external tabs, which means they may be pushed out of the
+    screen entirely and not viewable, or over to other monitors.
+
+*Show Pictures*::
+    If enabled the tabs will show the application's icon (if provided by the
+    application).
+
+*External Tab Width*::
+    Specifies the width of external tabs in pixels. External tabs have
+    the same behavior as Iconbar static sized alignments.
+
+STYLES
+------
+Shynebox enables you to use simple text files to specify colors, textures,
+pixmaps and fonts, and thus the look of the entire window manager.
+
+The default installation of shynebox provides some of these style files,
+courtesy of Blackbox and Fluxbox. See *shynebox-style(5)*.
+
+Style Overlay
+-------------
+The overlay file specified by *styleOverlay* (*~/.shynebox/overlay*
+by default) can be used to override items for all styles.
+This is useful for setting background or font settings.
+
+LAYERS
+------
+Layers control the way that windows overlap each other. This is already
+how windows work on other desktops, but some desktops only have 1 layer
+where windows reside. Windows on a higher layer will always appear above
+those on lower ones, whether focused or not. A window's layer can be
+controlled through hotkeys or the *Window Menu* `Layer ...' submenu.
+This menu gives 6 layer choices by name. These are (from highest to lowest):
+
+* 1 - Above Dock
+* 2 - Dock
+* 3 - Top
+* 4 - Normal
+* 5 - Bottom
+* 6 - Desktop
+
+Shynebox uses 7 layers. The special "7th" layer (layer 0) is reserved for
+menus, which should always be viewable to the user.
+
+CONFIG
+------
+Shynebox creates a default config file (*~/.shynebox/init*) if it does not
+exist. You can use the *Configure Menu* above to set most of these options.
+However, there are some options not available in the menu and some that can
+only be created by a user. If you edit this file while shynebox is running,
+you 'MUST' ``reconfigure'' to load these changes. Setting anything through
+the menu, or exiting/restarting shynebox will save the running config,
+overwriting any manual changes.
+
+These are the config items in the order they are saved in the file:
+
+*appsFile*: 'location'::
+    Location of persistent application settings.
+    See *shynebox-apps(5)* for details.
++
+Default: *~/.shynebox/apps*
+
+*autoRaiseDelay*: 'integer'::
+    The delay in milliseconds before focused windows or toolbar
+    will raise when using their autoRaise options (or autoHide).
++
+Default: *0*
+
+*autoRaiseWindows*: 'boolean'::
+    Automatically raises any window that gains focus.
++
+Default: *true*
+
+*cacheLife*: 'minutes'::
+    How long shynebox keeps unused pixmaps in memory.
++
+Default: *5*
+
+*cacheMax*: 'KbSize'::
+    How much memory shynebox uses to cache pixmaps.
+    (Setting this too high may cause issues, or even crashes.)
++
+Default: *2000*
+
+*clickRaisesWindows*: 'boolean'::
+    Causes left-clicks on a window to bring it above other windows.
++
+Default: *true*
+
+*clientMenu.usePixmap* 'boolean'::
+    Controls showing image-icons of applications in ClientMenus
+    (non-minimized window list menus).
++
+Default: *true*
+
+*colPlacementDirection*: *TOPBOTTOM* | *BOTTOMTOP*::
+    Controls the column direction in which windows are tiled using the
+    Col/RowSmartPlacement strategy.
++
+Default: *TOPBOTTOM*
+
+*colorsPerChannel*: 'integer'(2-6)::
+    This tells shynebox how many colors to take from the X server on
+    pseudo-color displays. A channel would be red, green, or blue. Shynebox
+    will allocate this variable ^ 3 and make them always available. When you
+    run shynebox on an 8bpp display, you must set this resource to 4.
+    (Recommend leaving alone.)
++
+Default: *4*
+
+*defaultDeco*: 'string'::
+    Specifies the default window decorations, according to the same options
+    available to the *[Deco]* option in the `apps' file, see *shynebox-apps(5)*.
++
+Default: *NORMAL*
+
+*doubleClickInterval*: 'integer'::
+    Adjust the delay in milliseconds between mouse clicks for shynebox to
+    consider a double click.
++
+Default: *250*
+
+*edgeResizeSnapThreshold*: 'integer'::
+    'Snap' to edges of screen, monitor, other windows and tabs while resizing
+    for easier placement. This variable is the distance (in pixels) at which
+    the resize will jump to edges.
+    When 0 resize snapping is considered disabled.
++
+Default: *0*
+
+*edgeSnapThreshold*: 'integer'::
+    'Snap' to edges of screen, monitor, other windows and tabs while moving
+    for easier placement. This variable is the distance (in pixels) at which
+    the move will jump to edges.
+    When 0 resize snapping is considered disabled.
++
+Default: *0*
+
+*focusModel*: 'CLICKFOCUS' | 'MOUSEFOCUS' | 'STRICTMOUSEFOCUS'::
+    Controls how windows gain focus via the mouse. With 'CLICKFOCUS', the user must
+    click on the window. With 'MOUSEFOCUS', windows gain focus whenever the mouse moves
+    over them, but only when the mouse is moving. With 'STRICTMOUSEFOCUS', windows gain
+    focus whenever the mouse enters any exposed area, even if this is due to layer
+    changes, window movement, changing desktops, closing windows, etc.
++
+Default: *CLICKFOCUS*
+
+*focusNewWindows*: 'boolean'::
+    Controls whether or not new windows will be focused automatically.
++
+Default: *true*
+
+*focusSameHead*: 'boolean'::
+    Controls focus for new and reverting windows on multi-monitor setups. True means
+    new windows will only gain focus if they are on the same head/monitor as the currently
+    focused window (assuming *focusNewWindows* is enabled). Similarly, closing windows
+    will focus the last focused window on the same head until there are no windows there.
+    If false reverting focus by closing windows will return focus in focus order regardless
+    of monitor location, and new windows will always gain focus if *focusNewWindows* is enabled.
++
+Default: *false*
+
+*fullMaximization*: 'boolean'::
+    Controls if windows will maximize over the toolbar or any other
+    reserved strut areas. Takes priority over *toolbar.claimSpace*.
++
+Default: *false*
+
+*iconbar.alignment*: 'position'::
+    Controls placement and size items in the toolbar.
++
+Default: *RELATIVE*
++
+Available options:;;
+- *LEFT*: Fixed width, aligned left
+- *CENTER*: Fixed width, aligned center
+- *RELATIVE*: Stretches items equally to fill iconbar
+- *RELATIVESMART*: Stretches items by title length
+- *RIGHT*: Fixed width, aligned right
+
+*iconbar.iconTextPadding*: 'integer'::
+    Adds pixel space between the window title and the edge of the icon and/or button.
+    Text may still attempt to be centered and likely have some padding regardless.
++
+Default: *0*
+
+*iconbar.iconWidth*: 'integer'::
+    Used to specify the iconbar buttons fixed width for Left/Center/Right alignment.
++
+Default: *128*
+
+*iconbar.iconifiedPattern*: 'string'::
+    Allows decoration of iconified (minimized) window titles.
+    The title is represented by "%t".
++
+Default: *%t*
+
+*iconbar.mode*: 'pattern'::
+    This determines which windows will be displayed in the iconbar. Any client
+    pattern is acceptable. See *CLIENT PATTERNS* in either *shynebox-keys(5)*
+    or *shynebox-apps(5)* for details.
++
+Default: *{static groups} (workspace)*
+
+*iconbar.usePixmap*: 'boolean'::
+    Controls showing image-icons of applications in the Iconbar.
++
+Default: *true*
+
+*keyFile*: 'location'::
+    Location of the keyboard mapping settings.
+    See *shynebox-keys(5)* for details.
++
+Default: *~/.shynebox/keys*
+
+*maxDisableMove*: 'boolean'::
+    Prevent maximized windows from moving.
++
+Default: *false*
+
+*maxDisableResize*: 'boolean'::
+    Prevent maximized windows from resizing.
++
+Default: *false*
+
+*maxIgnoreIncrement*: 'boolean'::
+    Prevent maximized windows from obeying EWMH size specifications.
+    Doing this allows a terminal or movie that wants a certain width
+    to height ratio to actually max full screen. Handy when using
+    any struts or trying to always see toolbar.
++
+Default: *true*
+
+*menuDelay*: 'integer'::
+    Delay in milliseconds for submenus to open when hovered over.
++
+Default: *200*
+
+*menuFile*: 'location'::
+    Location of the Root Menu file.
+    See *shynebox-menu(5)* for details.
++
+Default: *~/.shynebox/menu*
+
+*menuSearch*: 'NOWHERE' | 'ITEMSTART' | 'SOMEWHERE'::
+    Controls how the menu search feature works.
++
+Default: *SOMEWHERE*
++
+Available options:;;
+- *NOWHERE*: disables the menu search
+- *ITEMSTART*: typed text matches at the start of a menu items
+- *SOMEWHERE*: typed text matches somewhere in a menu item
+
+*noFocusWhileTypingDelay*: 'integer'::
+    Delay in milliseconds to prevent windows from focusing if typing.
++
+Default: *0*
+
+*obeyHeads*: 'boolean'::
+    Controls multi-monitor dimension detection and setup. Effectively forces
+    0 (all heads) for multi-monitor related functions and treats everything
+    as a single monitor. Affects snapping, toolbar and most head related commands.
+    Single monitor users may as well leave this off.
++
+Default: *false*
+
+*opaqueMove*: 'boolean'::
+    Whether moving windows draw contents or a outline border.
++
+Default: *true*
+
+*opaqueResize*: 'boolean'::
+    Whether resizing windows draw contents or a outline border.
++
+Default: *false*
+
+*opaqueResizeDelay*: 'integer'::
+    Controls the resize update time, in milliseconds, when resizing a
+    window in opaque mode. Low values resize "smoother" but can be slow
+    or have odd effects depending on the client. For example, gedit
+    looks fine, while browsers can have the X solitaire like effect
+    trying to catch up, or even pixelated updates. High values will
+    cause notable latency while resizing.
++
+Default: *0*
+
+*rowPlacementDirection*: 'LEFTRIGHT' | 'RIGHTLEFT'::
+    Controls the row direction in which windows are tiled using the
+    Col/RowSmartPlacement strategy.
++
+Default: *LEFTRIGHT*
+
+*showWindowPosition*: 'boolean'::
+    Displays a small window with position and geometry information
+    while moving or resizing windows.
++
+Default: *false*
+
+*strftimeFormat*: 'date'::
+    Current time in the toolbar Clock by *strftime(3)* or *date(1)* format.
++
+Default: *%a %b %d %k:%M*
+
+*struts.<n>*: 'integer', 'integer', 'integer', 'integer'::
+    Reserve workspace area of 'head' by 'left', 'right', 'top', 'bottom'
+    pixels (positive integers). This allows you to keep a fraction of the
+    desktop visible against maximized windows and new window placements.
++
+Default: *not in config*
++
+Example:;;
++
+struts.<n> allows to control this for individual heads
+(<n> starts counting at 0, which is ALL heads/monitors)
++
+struts.0: 50,0,0,0
+
+*styleFile*: 'location'::
+    Location of the currently selected style.
+    See *shynebox-style(5)* for details.
++
+Default: *@pkgdatadir@/styles/bloe*
+
+*styleOverlay*: 'location'::
+    Location of the style overlay file.
+    See *shynebox-style(5)* for details.
++
+Default: *~/.shynebox/overlay*
+
+*systray.pin{Left|Right}*: 'classes'::
+    Sorts system tray icons left-to-right by a comma-separated,
+    case-insensitive, CLASSCLASS property list of the X clients.
+    (The second field of WM_CLASS found in the *xprop(1)* utility).
++
+Consider a system tray "A C B D E F". With pinRight set to "A, B" and pinLeft
+set to "E, F" it will look like "E F [C D] A B" where [] are randomly ordered
+(usually first joined is left).
++
+Default: *blank*
+
+*tabs.focusModel*: 'MOUSETABFOCUS' | 'CLICKTABFOCUS'::
+    Method to focus tabs. Mouse will change tabs when hovered over
+    and click will require a click to change tabs.
++
+Default: *CLICKTABFOCUS*
+
+*tabs.inTitlebar*: 'boolean'::
+    Whether tabs should be embedded in titlebars or placed outside
+    along window edges.
++
+Default: *true*
+
+*tabs.maxOver*: 'boolean'::
+    Determines if windows will exclude external tabs in their size geometry.
+    Setting to false will include the external tabs in total size calculations
+    for positioning and maximizing. Also determines if snapping will try
+    to snap to external tab dimensions.
++
+Default: *false*
+
+*tabs.placement*: 'placement'::
+    What corner or edge external tabs will be outside of windows.
+    It has the same possible values as *toolbar.placement* below.
++
+Default: *TOPLEFT*
+
+*tabs.textPadding*: 'integer'::
+    Text padding of tab titles in pixels.
++
+Default: *0*
+
+*tabs.usePixmap*: 'boolean'::
+    Controls showing image-icons of applications in Tabs.
++
+Default: *true*
+
+*tabs.width*: 'integer'::
+    Width of external tabs in pixels.
++
+Default: *64*
+
+*titlebar.{left|right}*: 'buttons'::
+    Space-delimited list of buttons to place in titlebars of windows.
++
+Default left: *Stick*
++
+Default right: *Minimize Maximize Close*
++
+The available options are: *Close Maximize Minimize Shade Stick Menu*
+
+*toolbar.autoHide*: 'boolean'::
+    Hides the toolbar when the mouse exits its given area and brings it back
+    when the mouse enters the toolbar area.
++
+Default: *false*
+
+*toolbar.autoRaise*: 'boolean'::
+    Raises the toolbar to the ABOVEDOCK layer when the mouse is over it.
+    When the mouse leaves the toolbar it goes back to its configured area.
+    If a window is already over the toolbar, the mouse can not "enter" and
+    thus it does not raise.
++
+Default: *false*
+
+*toolbar.button.<name>.commands*: 'string'::
+    Colon-delimited list of commands that are executed when the
+    respective mouse button is pressed on the matching
+    *toolbar.button.<name>.label*.
++
+The commands are the same as those detailed in *shynebox-keys(5)*.
++
+Example: "toolbar.button.test.commands: MoveTo 0 0 : : Close"
++
+Will move the current window on Mouse1, do nothing on Mouse2, and
+close it on Mouse3.
++
+Note: that if you want to Exec anything with a ":" as an argument you
+may need to make it a file script (*sh*, *py*, so on).
++
+Default: *not in config*
+
+*toolbar.button.<name>.label*: 'string'::
+    A custom text label for toolbar buttons. Technically any number of
+    these can be made but must have a matching entry for
+    *toolbar.button.<name>.commands*.
++
+Default: *not in config*
+
+*toolbar.claimSpace*: 'boolean'::
+    Reserve space (a strut) on the screen for the toolbar. This prevents
+    new windows from overlapping the toolbar's area and maximized window
+    from using that area unless *fullMaximization* is set.
++
+Default: *false*
+
+*toolbar.height*: 'integer'::
+    Set a maximum height for the toolbar.
+    A value of 0 gives the style file control over the toolbar height.
++
+Default: *0*
+
+*toolbar.layer*: 'layer'::
+    The default layer you want the toolbar on.
+    See *LAYER* section for more information.
++
+Default: *DOCK*
+
+*toolbar.onHead*: 'integer'::
+    The monitor to place the toolbar on for multi-monitor setups. Head
+    0 will go across any monitor in the appropriate direction depending
+    on your toolbar placement and *xrandr(1)* configuration.
++
+Default: *1*
+
+*toolbar.placement*: 'placement'::
+    Which edge or corner of the screen to place the toolbar.
++
+Default: *BOTTOMCENTER*
++
+Possible options are:;;
+*BOTTOMLEFT BOTTOMCENTER BOTTOMRIGHT LEFTBOTTOM LEFTCENTER LEFTTOP
+RIGHTBOTTOM RIGHTCENTER RIGHTTOP TOPLEFT TOPCENTER TOPRIGHT*
+
+*toolbar.tools*: 'tools'::
+    A comma-separated list of the tools plugged into the toolbar. Read the
+    *Toolbar* section for a description of each. They may be specified in
+    any order and will appear in the order given. Only a single item of a
+    single type is supported.
++
+Default: *workspacename, iconbar, systemtray, clock*
++
+Possible tools:;;
+*clock iconbar systemtray workspacename button.<name> spacer_<n>*
+
+*toolbar.visible*: 'boolean'::
+    The user can set whether they want to have a toolbar on screen at all.
+    Setting to false removes the toolbar from the screen.
++
+Default: *true*
+
+*toolbar.widthPercent*: 'integer'::
+    Percent of head/monitor size to determine toolbar size.
++
+Default: *100*
+
+*tooltipDelay*: 'integer'::
+    Delay in milliseconds that hovering the mouse makes tooltips, like
+    oversized titles, pop-up a window with text.
++
+Default: *500*
+
+*windowMenuFile*: 'location'::
+    Location of the window menu file.
++
+Default: *~/.shynebox/windowmenu*
+
+*windowPlacement*: 'strategy'::
+    Specifies how new windows are placed.
++
+Default: *ROWMINOVERLAPPLACEMENT*
++
+Available strategies:;;
+- *ROWSMARTPLACEMENT*: place windows in rows->cols next to the focused
+  window, and eventually back around covering placed windows
+- *COLSMARTPLACEMENT*: same as ROWSMART but columns->rows
+- *ROWMINOVERLAPPLACEMENT*: place windows in rows->cols with minimal overlapping
+  of all de-iconified windows
+- *COLMINOVERLAPPLACEMENT*: same as ROWMIN but columns->rows
+- *CASCADEPLACEMENT*: places windows below the titlebar of the previous placed one
+- *CENTERPLACEMENT*: places windows in the center of the current monitor
+- *UNDERMOUSEPLACEMENT*: places windows under the mouse
+- *AUTOTABPLACEMENT*: adds new windows as a tab in the current window
+
+*workspaceNames*: 'strings'::
+    A comma separated list of workspace names.
++
+Default: *1, 2, 3, 4*
+
+*workspaceWarpingHorizontal*: 'boolean'::
+    Controls being able to change workspaces by dragging a window
+    across the edge of the screen. (This means total screen, or head 0.)
+    Controls warping Left and Right.
++
+Default: *true*
+
+*workspaceWarpingHorizontalOffset*: 'integer'::
+    Pixel offset to warp the mouse Left and Right.
++
+Default: *true*
+
+*workspaceWarpingVertical*: 'boolean'::
+    Controls warping Up and Down.
++
+Default: *true*
+
+*workspaceWarpingVerticalOffset*: 'integer'::
+    Pixel offset to warp the mouse Up and Down.
++
+Default: *true*
+
+*workspaces*: 'integer'::
+    The number of active workspaces. This can be lower than the total names.
++
+Default: *4*
+
+For 'usePixmap' items, some programs do not provide an icon. However with
+*\~/.Xdefaults* or another *xrdb(1)* file you can supply a custom icon with
+something like: "Urxvt*iconFile: /path/to/some.png" then restarting shynebox
+or reloading with "xrdb -merge ~/.Xdefaults".
+
+ENVIRONMENT
+-----------
+*XDG_CONFIG_HOME* / *HOME*::
+    Shynebox uses *$XDG_CONFIG_HOME* and then *$HOME* to find the *init*
+    file and to resolve config file and directory names.
+
+*DBUS_SESSION_BUS_ADDRESS*::
+    Launching *startshynebox* with 'dbus-run-session' allows programs
+    to pass along the *DBUS_SESSION_BUS_ADDRESS* variable.
+
+*DISPLAY*::
+    When no other display was given on the command line, shynebox will
+    start on the display specified by this variable.
+
+Shynebox can also take advantage of other environment variables if they are set
+before shynebox is started. For example, if *$TERM* is set, then it will be
+available whenever shynebox uses the shell, such as the `keys' file
+*ExecCommand* or the root menu's *[exec]* tag.
+See *shynebox-keys(5)* and *shynebox-menu(5)* for details.
+
+For more information about environment variables in general, see your
+shell's manual.
+
+SIGNALS
+-------
+shynebox responds to the following signals:
+
+- SIGUSR1  restarts shynebox.
+- SIGUSR2  Forces reloading of configuration.
+
+AUTHORS
+-------
+shynebox was written by zlice.
+
+fluxbox is written and maintained by Henrik Kinnunen <fluxgen at fluxbox org>,
+Simon Bowden <rathnor at fluxbox org>, Mathias Gumz <akira at fluxbox org>, and
+Mark Tiefenbruck <mark at fluxbox org>, with contributions and patches merged
+from many individuals around the world.
+
+Blackbox was written and maintained by Brad Hughes <blackbox at alug org> and
+Jeff Raven <jraven at psu edu>.
+
+This manpage is the combined work of:
+
+- zlice updated for shynebox
+- Jim Ramsay <i.am at jimramsay com> (>fluxbox-1.0.0)
+- Curt Micol <asenchi at asenchi com> (>fluxbox-0.9.11)
+- Tobias Klausmann <klausman at users sourceforge net> (<=fluxbox-0.9.11)
+- Grubert <grubert at users sourceforge net> (fluxbox)
+- Matthew Hawkins <matt at mh dropbear id au> (blackbox)
+- Wilbert Berendsen <wbsoft at xs4all nl> (blackbox)
+
+- Numerous other languages could be available if someone jumps in.
+
+ONLINE DOCUMENTATION
+--------------------
+Most old Fluxbox documentation should still hold up.
+
+https://github.com/zlice/shynebox
+
+BUGS
+----
+You can make a git PR.
+
+SEE ALSO
+--------
+shynebox-apps(5) shynebox-keys(5) shynebox-style(5) shynebox-menu(5)
+shynebox-remote(1) sbsetroot(1) sbsetbg(1) sbrun(1) startshynebox(1)

@@ -1,0 +1,2102 @@
+'\" t
+.\"     Title: shynebox
+.\"    Author: zlice https://github.com/zlice/shynebox
+.\" Generator: DocBook XSL Stylesheets vsnapshot <http://docbook.sf.net/>
+.\"      Date: 11 October 2023
+.\"    Manual: Shynebox Manual
+.\"    Source: shynebox.txt
+.\"  Language: English
+.\"
+.TH "SHYNEBOX" "1" "11 October 2023" "shynebox\&.txt" "Shynebox Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+shynebox \- A lightweight window manager for the X Windowing System
+.SH "SYNOPSIS"
+.sp
+\fBshynebox\fR [\-rc \fIrcfile\fR] [\-no\-toolbar] [\-log \fIlogfile\fR] [\-display \fIdisplay\fR] [\-verbose] [\-sync] [\-v | \-version] [\-h | \-help] [\-i | \-info] [\-list\-commands]
+.SH "DESCRIPTION"
+.sp
+\fBshynebox(1)\fR is a window manager that provides highly configurable window decorations, hotkeys and menus that can configure itself and launch applications\&. It can have multiple virtual\-desktops called \fBWorkspaces\fR\&. Has an optional toolbar that can show the current \fBworkspace\fR name, list of open and/or minimized running applications, a \fBsystray\fR and a \fBclock\fR with the current time\&.
+.sp
+Shynebox uses its own graphics class to render its images on the fly\&. By using style files, you can determine in great detail how your desktop looks\&. Shynebox styles are compatible with those of Fluxbox 1\&.3\&.7 or earlier versions, so users migrating can still use their current favorite themes\&. (See \fBshynebox\-styles(5)\fR)
+.sp
+Keyboard and mouse button actions can be configured in the \(oqkeys\(cq file\&. This powerful configuration file can be used to automate almost any action you may want to perform, from launching applications to moving windows around the screen\&. (See \fBshynebox\-keys(5)\fR)
+.sp
+Shynebox can also remember certain attributes of individual application windows and restore these settings the next time the window opens\&. (See \fBshynebox\-apps(5)\fR)
+.sp
+A majority of the Extended Window Manager Hints (EWMH) specification is supported, as well as numerous other Window Hinting standards\&. This enables features like reserving desktop space, positioning and geometry, extracting window image\-icons and other hints that allow help windows to interact with each other\&.
+.SH "OPTIONS"
+.PP
+\fB\-display\fR \fIdisplay\fR
+.RS 4
+Start shynebox on the specified display\&. Programs started by shynebox will share the DISPLAY environment variable also\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-help\fR
+.RS 4
+Display this command line usage\&.
+.RE
+.PP
+\fB\-i\fR, \fB\-info\fR
+.RS 4
+Display useful information concerning the defaults and compiled\-in options\&.
+.RE
+.PP
+\fB\-log\fR \fIlogfile\fR
+.RS 4
+Dumps shynebox output to a log file\&.
+.RE
+.PP
+\fB\-no\-toolbar\fR
+.RS 4
+Do not use the toolbar
+.RE
+.PP
+\fB\-rc\fR \fIrcfile\fR
+.RS 4
+Use a different config file other than the default (typically
+\fB~/\&.shynebox/init\fR)\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-version\fR
+.RS 4
+The version of shynebox installed\&.
+.RE
+.PP
+\fB\-verbose\fR
+.RS 4
+Print more information in process\&.
+.RE
+.PP
+\fB\-sync\fR
+.RS 4
+Synchronize with the X server for debugging\&.
+.RE
+.PP
+\fB\-list\-commands\fR
+.RS 4
+Lists all available internal commands (most of these are mapped with the \(oqkeys\(cq file)\&.
+.RE
+.SH "STARTING SHYNEBOX"
+.sp
+\fBshynebox(1)\fR comes with a script called \fBstartshynebox(1)\fR, usually located wherever you installed shynebox\&. This script provides a bootstrap to setup and launch shynebox with a per\-user \fBstartup\fR script located in \fB~/\&.shynebox/startup\fR\&. To actually call shynebox and begin using it, you should place \(lqexec startshynebox\(rq in your \fB~/\&.xinitrc\fR, \fB~/\&.xsession\fR, or xsession script such as \fB/usr/share/xsessions/shynebox\&.desktop\fR, as the last executed command\&. Also, you may want to launch with \fIdbus\-run\-session\fR\&. Then the environment variable \fBDBUS_SESSION_BUS_ADDRESS\fR can get picked up by other programs, or passed to them directly\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+exec dbus\-run\-session startshynebox
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+You can also rely on the \fBXDG_CONFIG_HOME\fR variable to put your configs in \fB~/\&.config/shynebox\fR\&. Documentation refers to \fB~/\&.shynebox\fR but these paths are interchangeable\&. \fBXDG_CONFIG_HOME\fR is used over \fBHOME\fR when found\&. Some login and session managers may need \fBXDG_CONFIG_HOME\fR set manually\&. LXDM on my distro for example needs:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+export XDG_CONFIG_HOME="$HOME/\&.config"
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+A list of system wide default config files can be found with \*(Aqshynebox \-i\*(Aq\&. These are copied to users\*(Aq config directories by shynebox on first time runs\&.
+.sp
+On exit or restart, shynebox will save user configs in the file \fB~/\&.shynebox/init\fR\&. Config items in this file can be edited by hand, or through the \fBConfig Menu\fR described ahead\&. See the \fBCONFIG\fR section for more details\&.
+.SH "USING SHYNEBOX"
+.sp
+On first launch shynebox will have a \fBToolbar\fR and an empty desktop\&. The desktop space can be used by other programs but shynebox itself does not have a way of configuring or using more than a background image\&.
+.sp
+To get you familiar with shynebox, here is a list terms and definitions for the window manager:
+.SS "Root Window (Main)"
+.sp
+The desktop background\&. If you right\-click (mouse button 3) the desktop, you can access the \fBRoot Menu\fR\&. A middle\-click (mouse button 2) on the desktop opens the \fBWorkspace Menu\fR\&. See \fBMENUS\fR section ahead\&.
+.SS "Toolbar"
+.sp
+The toolbar can contain the following tools:
+.PP
+\fBWorkspace Name\fR:
+.RS 4
+Name of the current active workspace\&. Left/Right click will go to the Prev/Next workspace\&.
+.RE
+.PP
+\fBIconbar\fR:
+.RS 4
+List of windows managed by shynebox\&. This list can changed by
+\fBIconbar\fR
+in
+\fBToolbar Menu\fR
+section\&.
+.RE
+.PP
+\fBSystem Tray\fR:
+.RS 4
+Area for docked apps like chat, mail, audio, networking, etc\&.
+.RE
+.PP
+\fBClock\fR:
+.RS 4
+A clock with the date in the format of
+\fBstrftime\fR
+(\fBdate(1)\fR)\&.
+.RE
+.PP
+\fBButton\&.<name>\fR:
+.RS 4
+A generic button with customizable a label and action(s)\&. The
+\fBCONFIG\fR
+section has more info on custom buttons\&.
+.RE
+.PP
+\fBSpacer_<n>\fR:
+.RS 4
+A spacer of pixel width n\&. (Default size 10\&.)
+.RE
+.SS "Workspace"
+.sp
+A virtual desktop that holds Windows\&.
+.SS "Windows"
+.sp
+By default, windows should behave like they do on most desktop systems\&. Grabbing the bottom right/left grips will start resizing\&. Left\-click on the titlebar will raise and move the window\&. Double\-clicking the titlebar will \fIshade\fR it and hide the window contents while leaving the titlebar\&. Right\-clicking a titlebar will bring up a \fBWindow Menu\fR described in \fBMENUS\fR\&.
+.SS "Tabs"
+.sp
+This has been common in browsers for a while, but as a window manager multiple applications of differing types can be put in one window\&. Shynebox allows windows to be tabbed by middle\-click\-dragging a window\(cqs titlebar out or onto another window\&. By default, tabs are located \fIinternally\fR in a window\(cqs titlebar, but can be configured to be \fIexternal\fR along side\-sections of windows\&. Configuration is discussed in \fBTAB OPTIONS\fR section\&.
+.sp
+You can also set up automatic grouping using the \(oqapps\(cq file or use a \fBPlacement Strategy\fR to add new windows to your current active window in a tab by default\&. See \fBGROUP SECTIONS\fR in \fBshynebox\-apps(5)\fR and \fBwindowPlacement\fR in \fBCONFIG\fR\&.
+.SS "Key Bindings"
+.sp
+This is what makes shynebox so powerful\&. Bindings can be configured to just about anything you can imagine with the keyboard and/or mouse\&. You can configure a simple key press to an action, multiple actions, key\-modes (think \*(Aqlayers\*(Aq of a custom keyboard) and Emacs style chains\&. These key actions can have filters for which windows, workspaces, monitor(s)(heads) they do or don\(cqt act on, and can access a good amount of the internal functions of the window manager itself\&. All configured in a simple text file, for example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Alt F4 :Close
+Super r :Exec sbrun
+Super l :Exec xscreensaver\-command \-lock
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+The default bindings set up by shynebox are as follows:
+.PP
+Mouse clicks on the empty desktop
+.RS 4
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBLeft\-click\fR
+(Button 1): hides all shynebox menus
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBMiddle\-click\fR
+(Button 2): shows the Workspace Menu
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBRight\-click\fR
+(Button 3): shows the Root Menu
+.RE
+.RE
+.PP
+Mouse gestures on a window
+.RS 4
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+Drag Left\-click\fR
+anywhere on a window starts moving
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+Drag Right\-click\fR
+anywhere on a window starts resizing
+.RE
+.RE
+.PP
+Mouse gestures on a window\(cqs titlebar
+.RS 4
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBMiddle\-click\-drag\fR
+on a window\(cqs titlebar to start attaching to another window\(cqs tab group
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBDouble Left\-click\fR
+on a window\(cqs titlebar shades the window (hides the window contents but leaves the titlebar)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBRight\-click\fR
+on a window\(cqs titlebar pops up the
+\fBWindow Menu\fR
+.RE
+.RE
+.PP
+Keyboard bindings
+.RS 4
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+Tab\fR
+/
+\fBALT+Shift+Tab\fR: Cycle through windows (forward/backward)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBWIN+Tab\fR
+/
+\fBWIN+Shift+Tab\fR: Cycle through tabs
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBWIN+1/2/3\fR: Select the 1st \(-> 3rd tab in the current window (only 3 enabled by default)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+F1\fR: Run
+\fBxterm(1)\fR
+to open a new terminal
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+F2\fR: Run
+\fBsbrun(1)\fR
+small \(lqrun program\(rq dialog
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+F4\fR: Close the current window
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+F5\fR: Kill the current window (like
+\fBxkill(1)\fR, disabled by default)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+F9\fR: Minimize (iconify) the current window
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+F10\fR: Maximize the current window
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+F11\fR: Fullscreen the current window
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBALT+Space\fR: Open the
+\fBWindow Menu\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCTRL+ALT+Del\fR: Exit shynebox (log out)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCTRL+ALT+Left/Right\fR: Go to the previous/next workspace
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBWIN+Left/Right\fR: Send the current window to the previous/next workspace, but remain on this workspace
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCTRL+WIN+LeftRight\fR: Take the current window to the previous/next workspace, and switch to that workspace
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCTRL+F1/F2/F3/F4\fR: Switch to the 1st \(-> 4th workspace
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBWIN+F1/F2/F3/F4\fR: Send the current window to a specific workspace
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCTRL+WIN+F1/F2/F3/F4\fR: Take the current window to a specific workspace
+.RE
+.RE
+.sp
+See \fBshynebox\-keys(5)\fR for more details\&.
+.SH "MENUS"
+.sp
+Shynebox has customizable popup menus and also provides menus for configuration and window manager related functions\&.
+.sp
+When a menu is open, you can navigate with mouse or keyboard, and even search items by name\&. Some special menu items react slightly differently depending on the mouse button you use\&. For example, some configuration items have min\-max ranges with large values where a double\-click will increase by more than a single digit\&.
+.sp
+Normally, activating a menu item will close a menu and its submenus\&. You can also right\-click the title area of a menu or press \(lqesc\(rq to close it without activating an item\&.
+.sp
+See \fBshynebox\-menu(5)\fR for customization\&.
+.SS "Root Menu"
+.sp
+The root menu is where you can launch applications and change different aspects of shynebox\&. By default it is opened by right\-clicking on an empty area of the desktop\&.
+.sp
+The default Root Menu holds a special \(lqShynebox menu\(rq with these items:
+.PP
+\fBConfigure\fR
+.RS 4
+For customizing the behavior and certain items of shynebox\&. See
+\fBConfigure Menu\fR
+section below for more details\&.
+.RE
+.PP
+\fBSystem Styles\fR
+.RS 4
+A list of system installed themes in
+\fB@pkgdatadir@/styles/\fR\&. Changing themes takes effect immediately\&. (\fBSTYLES\fR
+section ahead)\&.
+.RE
+.PP
+\fBUser Styles\fR
+.RS 4
+A list of themes in a user specific directory (\fB~/\&.shynebox/styles\fR
+and
+\fB~/\&.config/shynebox/styles\fR)\&.
+.RE
+.PP
+\fBWorkspace List\fR
+.RS 4
+Workspaces and windows, detailed below in
+\fBWorkspace Menu\fR\&.
+.RE
+.PP
+\fBReload config\fR
+.RS 4
+Use this to reload the shynebox configuration files\&. You must do this after editing the \(oqkeys\(cq file, \(oqinit\(cq file, or the current style\&.
+.RE
+.PP
+\fBRestart\fR
+.RS 4
+Restarts a completely new shynebox process while leaving everything running\&. Rereads files and redraws all graphical elements\&. Running applications will be restored to the same workspaces they were previously in\&. This is useful to do after testing multiple re\-configs or styles\&.
+.RE
+.PP
+\fBExit\fR
+.RS 4
+Exits shynebox, which in turn either shuts down the X Window server or returns you to the graphical login screen\&.
+.RE
+.SS "Configuration Menu"
+.sp
+This menu does exactly what it sounds like, configures shynebox\&. It contains many options which can be altered manually in the \(oqinit\(cq file, but this is an easier and faster way to change the most common settings and see the effects on the fly\&.
+.sp
+All changes take effect immediately and update your config file\&.
+.PP
+\fBFocus Model\fR
+.RS 4
+Lets you configure the window focus model\&. For details, see
+\fBFOCUS MODEL\fR, below\&.
+.RE
+.PP
+\fBMaximize Options\fR
+.RS 4
+Behavior of maximized/maximizing windows\&.
+.PP
+\fBFull Maximization\fR:
+.RS 4
+Allows windows to maximize over screen space reserved by the toolbar or other docked windows (like panels)\&.
+.RE
+.PP
+\fBIgnore Resize Increment\fR:
+.RS 4
+Ignores \(lqresize increment\(rq request of terminals and other windows\&. These request tell a window manager to keep a window size to a specific ratio for text or video rendering\&.
+.RE
+.PP
+\fBDisable Moving\fR / \fBDisable Resizing\fR:
+.RS 4
+Maximized windows will ignore move/resize commands\&.
+.RE
+.RE
+.PP
+\fBTab Options\fR
+.RS 4
+Lets you configure the properties of tabs\&. Detailed in
+\fBTAB OPTIONS\fR, below\&.
+.RE
+.PP
+\fBToolbar\fR
+.RS 4
+Lets you configure the toolbar\&. See the
+\fBToolbar Menu\fR
+section, below\&.
+.RE
+.PP
+\fBOpaque Window Moving\fR
+.RS 4
+If enabled, you will see the window content while dragging it\&. Otherwise only an outline of the window will be shown\&.
+.RE
+.PP
+\fBOpaque Window Resizing\fR
+.RS 4
+If enabled, you will see the window content while resizing it\&. Otherwise only an outline of the window will be shown\&.
+.RE
+.PP
+\fBWarp Horizontal / Warp Vertical\fR
+.RS 4
+Enables dragging windows from one workspace to another\&. When warping, lower\-numbered workspaces are up and/or left, and higher\-numbered workspaces are down below and/or right\&.
+.RE
+.SS "Window Menu"
+.sp
+This is the menu accessed by right\-clicking on a titlebar\&.
+.sp
+To customize this menu, see the \fBWINDOW MENU\fR section of \fBshynebox\-menu(5)\fR\&.
+.sp
+By default, this menu contains:
+.PP
+\fBShade\fR
+.RS 4
+Toggles shade on a window (display only titlebar)\&.
+.RE
+.PP
+\fBStick\fR
+.RS 4
+Toggles sticky attribute of a window\&. A \(oqstuck\(cq window will always be displayed on all workspaces\&.
+.RE
+.PP
+\fBIconify\fR
+.RS 4
+Toggles Minimized (Iconified) state of a window\&.
+.RE
+.PP
+\fBMaximize\fR
+.RS 4
+Toggles Maximization of a window\&. You can use the different mouse buttons for the following:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Button 1 (Un)Maximize as normal\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Button 2 (Un)Maximize window vertically\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Button 3 (Un)Maximize window horizontally\&.
+.RE
+.RE
+.PP
+\fBSet Title\fR
+.RS 4
+Change the title of a window\&. This will not update until manually changed back to an empty string\&. Then new updates will change the title again\&.
+.RE
+.PP
+\fBRaise\fR
+.RS 4
+Raise the window above other windows in the same layer\&.
+.RE
+.PP
+\fBLower\fR
+.RS 4
+Lower the window below other windows in the same layer\&.
+.RE
+.PP
+\fBSend To\&...\fR
+.RS 4
+Send window to another workspace\&.
+.RE
+.PP
+\fBLayer\&...\fR
+.RS 4
+Change the layer of this window\&. See
+\fBLAYERS\fR
+for more details\&.
+.RE
+.PP
+\fBRemember\&...\fR
+.RS 4
+Specify which window settings should be stored in the \(oqapps\(cq file and remembered the next time this window is opened\&. These settings are covered in more detail in
+\fBshynebox\-apps(5)\fR\&.
+.RE
+.PP
+\fBClose\fR
+.RS 4
+Close the application softly\&.
+.RE
+.SS "Workspace Menu"
+.sp
+By default the workspace menu can be found, by middle\-clicking on the desktop or under the \fBRoot Menu\fR \(-> Shynebox Menu and contains:
+.PP
+\fBIcons\fR
+.RS 4
+This menu shows any iconified (minimized) windows\&. Clicking on a window will take you to its workspace and raise it\&.
+.RE
+.PP
+\fBWorkspaces\fR
+.RS 4
+Each workspace is shown as a submenu containing a list of all open windows on that workspace\&. Clicking on a window will take you to it and raise it\&.
+.RE
+.PP
+\fBNew Workspace\fR
+.RS 4
+Adds a new workspace to the end of the list of current workspaces\&. Workspaces without names in your \(oqinit\(cq config will be named by their number\-id and added to your config\&.
+.RE
+.PP
+\fBEdit current workspace name\fR
+.RS 4
+Pops up a dialog to change the name of the current workspace\&.
+.RE
+.PP
+\fBRemove Last\fR
+.RS 4
+Remove the last workspace in the list\&. Any windows currently there will be sent to the workspace before it\&. This does not change your config file\&.
+.RE
+.SS "Toolbar Menu"
+.sp
+This menu can be found in the \fBConfiguration Menu\fR\&.
+.sp
+All changes take effect immediately on the following:
+.PP
+\fBVisible\fR
+.RS 4
+Sets the toolbar either to visible or invisible\&.
+.RE
+.PP
+\fBAuto hide\fR
+.RS 4
+This hides the toolbar until the mouse is in its designated area and then re\-hides when the mouse leaves the area\&. See
+\fBCONFIG\fR
+for
+\fBautoRaiseDelay\fR
+delay time\&.
+.RE
+.PP
+\fBAuto raise\fR
+.RS 4
+If this is enabled the toolbar will raise its layer after the mouse pointer enters for a period of time\&. It will lower when the cursor leaves the toolbar\&. See
+\fBCONFIG\fR
+for
+\fBautoRaiseDelay\fR
+delay time\&.
+.RE
+.PP
+\fBToolbar width percentage\fR
+.RS 4
+The percentage width of the toolbar in relation to the total size of the screen/monitor\&. Use left/right clicks to de/increase the value from 1\-100\&.
+.RE
+.PP
+\fBClaim Space\fR
+.RS 4
+Enabling this option will reserve screen space for the toolbar\&. This space (called a strut) will not allow windows to maximize over the area or new windows to be placed over/under the toolbar\&.
+.RE
+.PP
+\fBLayer\&...\fR
+.RS 4
+This sets the layer on which the toolbar is set\&. (By default the toolbar is on DOCK or "Always on top" of windows\&.)
+.RE
+.PP
+\fBHead to place toolbar\fR
+.RS 4
+Which head (monitor) the toolbar should use\&. By default it is on the first (primary) monitor\&. Head 0 goes across all screen space\&.
+.RE
+.PP
+\fBPlacement\fR
+.RS 4
+What edge or corner of the screen the toolbar is placed\&.
+.RE
+.PP
+\fBIconbar\fR
+.RS 4
+Configures how the Iconbar behaves\&.
+.sp
+The first section changes what types of windows will be shown in the Iconbar:
+.PP
+\fBNone\fR:
+.RS 4
+Will not show any windows\&.
+.RE
+.PP
+\fBIcons\fR:
+.RS 4
+Shows only minimized/iconified windows on all workspaces\&.
+.RE
+.PP
+\fBNoIcons\fR:
+.RS 4
+Shows only un\-minimized windows on all workspaces\&.
+.RE
+.PP
+\fBWorkspaceIcons\fR:
+.RS 4
+Shows only minimized windows on the current workspace\&.
+.RE
+.PP
+\fBWorkspaceNoIcons\fR:
+.RS 4
+Shows windows on the current workspace that are not iconified\&.
+.RE
+.PP
+\fBWorkspace\fR:
+.RS 4
+Shows all windows on the current workspace\&. (default)
+.RE
+.PP
+\fBAll Windows\fR:
+.RS 4
+Shows all windows on all workspaces\&.
+.RE
+.sp
+The next section specifies the alignment of the window names shown in the iconbar\&. The
+\fBLeft/Right/Center\fR
+alignments will have a static width that is specified in the \(oqinit\(cq file under
+\fBiconbar\&.iconWidth\fR:
+.PP
+\fBLEFT\fR:
+.RS 4
+All icons will be left\-aligned\&.
+.RE
+.PP
+\fBCENTER\fR:
+.RS 4
+All icons will be center\-aligned\&.
+.RE
+.PP
+\fBRELATIVE\fR:
+.RS 4
+All icons will be sized evenly and fill the iconbar completely\&.
+.RE
+.PP
+\fBRELATIVESMART\fR:
+.RS 4
+The iconbar will be filled completely but icons with long titles will be larger\&.
+.RE
+.PP
+\fBRIGHT\fR:
+.RS 4
+All icons will be right\-aligned\&.
+.RE
+.sp
+The last option in this submenu is:
+.PP
+\fBShow Pictures\fR:
+.RS 4
+If enabled the iconbar will show the application\(cqs icon (if provided by the application)\&.
+.RE
+.RE
+.PP
+\fBClock\fR
+.RS 4
+Toggles 12h / 24h notation (00:00am \- 11:59pm and 00:00 \- 23:59)
+.RE
+.PP
+\fBEdit Clock Format\fR
+.RS 4
+Pop up a dialog window to change the clock format in
+\fBstrftime\fR
+time (\fBdate(1)\fR)\&.
+.RE
+.SH "FOCUS MODEL"
+.sp
+The Focus Model defines how windows gain focus (i\&.e\&. become the active window, which receives keyboard events)\&. The focus model can be changed in the \fBConfiguration Menu\fR\&.
+.sp
+Window and tab focus can behave separately\&. Each of has two options: follows mouse and click to focus\&. Follows mouse means that windows will gain focus when the mouse moves over them\&. Click to focus (default) means that windows will gain focus when left\-clicked\&.
+.sp
+Window focus:
+.PP
+\fBClick To Focus\fR
+.RS 4
+Click to focus windows\&.
+.RE
+.PP
+\fBMouse Focus\fR
+.RS 4
+Window focus follows mouse\&.
+.RE
+.PP
+\fBMouse Focus (Strict)\fR
+.RS 4
+Like Mouse Focus, but no mouse movement is required, ie\&. the window is also focused if it moves below the mouse, eg\&. because it shows up or you change the virtual desktop\&.
+.RE
+.sp
+Tab focus:
+.PP
+\fBClickTabFocus\fR
+.RS 4
+Click to focus tabs\&.
+.RE
+.PP
+\fBMouseTabFocus\fR
+.RS 4
+Tab focus follows mouse\&.
+.RE
+.sp
+Additional settings in the \(lqFocus Model\(rq menu:
+.PP
+\fBFocus New Windows\fR
+.RS 4
+If enabled, a new window will grab X focus as it is opened\&.
+.RE
+.PP
+\fBKeep head\fR
+.RS 4
+Refers to how focus reverts with multi\-monitor setups\&. See
+\fBfocusSameHead\fR
+in
+\fBCONFIG\fR
+below\&.
+.RE
+.PP
+\fBAuto Raise Windows\fR
+.RS 4
+If enabled, focusing on a new window will automatically raise that window above all others within its layer\&. When disabled, you must explicitly raise a focused window using the window menu, keybinding, or
+\fBClick Raises\fR\&.
+.RE
+.PP
+\fBClick Raises\fR
+.RS 4
+If enabled, left\-clicking on a window will raise it above all other windows in the same layer\&.
+.RE
+.SH "TAB OPTIONS"
+.sp
+Tab options for the following:
+.PP
+\fBPlacement\fR
+.RS 4
+Where external tabs will be positioned relative to the window\&. For these options to work, \(oqTabs in Titlebar\(cq must be off\&.
+.RE
+.PP
+\fBTabs in Titlebar\fR
+.RS 4
+Places tabs in window titlebars and the width is evenly divided between tabs like \(oqIconbar Relative\(cq alignment\&.
+.RE
+.PP
+\fBMaximize Over\fR
+.RS 4
+When this option is on, maximizing a window will ignore the size and location of external tabs, which means they may be pushed out of the screen entirely and not viewable, or over to other monitors\&.
+.RE
+.PP
+\fBShow Pictures\fR
+.RS 4
+If enabled the tabs will show the application\(cqs icon (if provided by the application)\&.
+.RE
+.PP
+\fBExternal Tab Width\fR
+.RS 4
+Specifies the width of external tabs in pixels\&. External tabs have the same behavior as Iconbar static sized alignments\&.
+.RE
+.SH "STYLES"
+.sp
+Shynebox enables you to use simple text files to specify colors, textures, pixmaps and fonts, and thus the look of the entire window manager\&.
+.sp
+The default installation of shynebox provides some of these style files, courtesy of Blackbox and Fluxbox\&. See \fBshynebox\-style(5)\fR\&.
+.SH "STYLE OVERLAY"
+.sp
+The overlay file specified by \fBstyleOverlay\fR (\fB~/\&.shynebox/overlay\fR by default) can be used to override items for all styles\&. This is useful for setting background or font settings\&.
+.SH "LAYERS"
+.sp
+Layers control the way that windows overlap each other\&. This is already how windows work on other desktops, but some desktops only have 1 layer where windows reside\&. Windows on a higher layer will always appear above those on lower ones, whether focused or not\&. A window\(cqs layer can be controlled through hotkeys or the \fBWindow Menu\fR \(oqLayer \&...\(cq submenu\&. This menu gives 6 layer choices by name\&. These are (from highest to lowest):
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+1 \- Above Dock
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+2 \- Dock
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+3 \- Top
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+4 \- Normal
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+5 \- Bottom
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+6 \- Desktop
+.RE
+.sp
+Shynebox uses 7 layers\&. The special "7th" layer (layer 0) is reserved for menus, which should always be viewable to the user\&.
+.SH "CONFIG"
+.sp
+Shynebox creates a default config file (\fB~/\&.shynebox/init\fR) if it does not exist\&. You can use the \fBConfigure Menu\fR above to set most of these options\&. However, there are some options not available in the menu and some that can only be created by a user\&. If you edit this file while shynebox is running, you \fIMUST\fR \(lqreconfigure\(rq to load these changes\&. Setting anything through the menu, or exiting/restarting shynebox will save the running config, overwriting any manual changes\&.
+.sp
+These are the config items in the order they are saved in the file:
+.PP
+\fBappsFile\fR: \fIlocation\fR
+.RS 4
+Location of persistent application settings\&. See
+\fBshynebox\-apps(5)\fR
+for details\&.
+.sp
+Default:
+\fB~/\&.shynebox/apps\fR
+.RE
+.PP
+\fBautoRaiseDelay\fR: \fIinteger\fR
+.RS 4
+The delay in milliseconds before focused windows or toolbar will raise when using their autoRaise options (or autoHide)\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBautoRaiseWindows\fR: \fIboolean\fR
+.RS 4
+Automatically raises any window that gains focus\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBcacheLife\fR: \fIminutes\fR
+.RS 4
+How long shynebox keeps unused pixmaps in memory\&.
+.sp
+Default:
+\fB5\fR
+.RE
+.PP
+\fBcacheMax\fR: \fIKbSize\fR
+.RS 4
+How much memory shynebox uses to cache pixmaps\&. (Setting this too high may cause issues, or even crashes\&.)
+.sp
+Default:
+\fB2000\fR
+.RE
+.PP
+\fBclickRaisesWindows\fR: \fIboolean\fR
+.RS 4
+Causes left\-clicks on a window to bring it above other windows\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBclientMenu\&.usePixmap\fR \fIboolean\fR
+.RS 4
+Controls showing image\-icons of applications in ClientMenus (non\-minimized window list menus)\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBcolPlacementDirection\fR: \fBTOPBOTTOM\fR | \fBBOTTOMTOP\fR
+.RS 4
+Controls the column direction in which windows are tiled using the Col/RowSmartPlacement strategy\&.
+.sp
+Default:
+\fBTOPBOTTOM\fR
+.RE
+.PP
+\fBcolorsPerChannel\fR: \fIinteger\fR(2\-6)
+.RS 4
+This tells shynebox how many colors to take from the X server on pseudo\-color displays\&. A channel would be red, green, or blue\&. Shynebox will allocate this variable ^ 3 and make them always available\&. When you run shynebox on an 8bpp display, you must set this resource to 4\&. (Recommend leaving alone\&.)
+.sp
+Default:
+\fB4\fR
+.RE
+.PP
+\fBdefaultDeco\fR: \fIstring\fR
+.RS 4
+Specifies the default window decorations, according to the same options available to the
+\fB[Deco]\fR
+option in the \(oqapps\(cq file, see
+\fBshynebox\-apps(5)\fR\&.
+.sp
+Default:
+\fBNORMAL\fR
+.RE
+.PP
+\fBdoubleClickInterval\fR: \fIinteger\fR
+.RS 4
+Adjust the delay in milliseconds between mouse clicks for shynebox to consider a double click\&.
+.sp
+Default:
+\fB250\fR
+.RE
+.PP
+\fBedgeResizeSnapThreshold\fR: \fIinteger\fR
+.RS 4
+\fISnap\fR
+to edges of screen, monitor, other windows and tabs while resizing for easier placement\&. This variable is the distance (in pixels) at which the resize will jump to edges\&. When 0 resize snapping is considered disabled\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBedgeSnapThreshold\fR: \fIinteger\fR
+.RS 4
+\fISnap\fR
+to edges of screen, monitor, other windows and tabs while moving for easier placement\&. This variable is the distance (in pixels) at which the move will jump to edges\&. When 0 resize snapping is considered disabled\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBfocusModel\fR: \fICLICKFOCUS\fR | \fIMOUSEFOCUS\fR | \fISTRICTMOUSEFOCUS\fR
+.RS 4
+Controls how windows gain focus via the mouse\&. With
+\fICLICKFOCUS\fR, the user must click on the window\&. With
+\fIMOUSEFOCUS\fR, windows gain focus whenever the mouse moves over them, but only when the mouse is moving\&. With
+\fISTRICTMOUSEFOCUS\fR, windows gain focus whenever the mouse enters any exposed area, even if this is due to layer changes, window movement, changing desktops, closing windows, etc\&.
+.sp
+Default:
+\fBCLICKFOCUS\fR
+.RE
+.PP
+\fBfocusNewWindows\fR: \fIboolean\fR
+.RS 4
+Controls whether or not new windows will be focused automatically\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBfocusSameHead\fR: \fIboolean\fR
+.RS 4
+Controls focus for new and reverting windows on multi\-monitor setups\&. True means new windows will only gain focus if they are on the same head/monitor as the currently focused window (assuming
+\fBfocusNewWindows\fR
+is enabled)\&. Similarly, closing windows will focus the last focused window on the same head until there are no windows there\&. If false reverting focus by closing windows will return focus in focus order regardless of monitor location, and new windows will always gain focus if
+\fBfocusNewWindows\fR
+is enabled\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBfullMaximization\fR: \fIboolean\fR
+.RS 4
+Controls if windows will maximize over the toolbar or any other reserved strut areas\&. Takes priority over
+\fBtoolbar\&.claimSpace\fR\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBiconbar\&.alignment\fR: \fIposition\fR
+.RS 4
+Controls placement and size items in the toolbar\&.
+.sp
+Default:
+\fBRELATIVE\fR
+.PP
+Available options:
+.RS 4
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBLEFT\fR: Fixed width, aligned left
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCENTER\fR: Fixed width, aligned center
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBRELATIVE\fR: Stretches items equally to fill iconbar
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBRELATIVESMART\fR: Stretches items by title length
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBRIGHT\fR: Fixed width, aligned right
+.RE
+.RE
+.RE
+.PP
+\fBiconbar\&.iconTextPadding\fR: \fIinteger\fR
+.RS 4
+Adds pixel space between the window title and the edge of the icon and/or button\&. Text may still attempt to be centered and likely have some padding regardless\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBiconbar\&.iconWidth\fR: \fIinteger\fR
+.RS 4
+Used to specify the iconbar buttons fixed width for Left/Center/Right alignment\&.
+.sp
+Default:
+\fB128\fR
+.RE
+.PP
+\fBiconbar\&.iconifiedPattern\fR: \fIstring\fR
+.RS 4
+Allows decoration of iconified (minimized) window titles\&. The title is represented by "%t"\&.
+.sp
+Default:
+\fB%t\fR
+.RE
+.PP
+\fBiconbar\&.mode\fR: \fIpattern\fR
+.RS 4
+This determines which windows will be displayed in the iconbar\&. Any client pattern is acceptable\&. See
+\fBCLIENT PATTERNS\fR
+in either
+\fBshynebox\-keys(5)\fR
+or
+\fBshynebox\-apps(5)\fR
+for details\&.
+.sp
+Default:
+\fB{static groups} (workspace)\fR
+.RE
+.PP
+\fBiconbar\&.usePixmap\fR: \fIboolean\fR
+.RS 4
+Controls showing image\-icons of applications in the Iconbar\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBkeyFile\fR: \fIlocation\fR
+.RS 4
+Location of the keyboard mapping settings\&. See
+\fBshynebox\-keys(5)\fR
+for details\&.
+.sp
+Default:
+\fB~/\&.shynebox/keys\fR
+.RE
+.PP
+\fBmaxDisableMove\fR: \fIboolean\fR
+.RS 4
+Prevent maximized windows from moving\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBmaxDisableResize\fR: \fIboolean\fR
+.RS 4
+Prevent maximized windows from resizing\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBmaxIgnoreIncrement\fR: \fIboolean\fR
+.RS 4
+Prevent maximized windows from obeying EWMH size specifications\&. Doing this allows a terminal or movie that wants a certain width to height ratio to actually max full screen\&. Handy when using any struts or trying to always see toolbar\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBmenuDelay\fR: \fIinteger\fR
+.RS 4
+Delay in milliseconds for submenus to open when hovered over\&.
+.sp
+Default:
+\fB200\fR
+.RE
+.PP
+\fBmenuFile\fR: \fIlocation\fR
+.RS 4
+Location of the Root Menu file\&. See
+\fBshynebox\-menu(5)\fR
+for details\&.
+.sp
+Default:
+\fB~/\&.shynebox/menu\fR
+.RE
+.PP
+\fBmenuSearch\fR: \fINOWHERE\fR | \fIITEMSTART\fR | \fISOMEWHERE\fR
+.RS 4
+Controls how the menu search feature works\&.
+.sp
+Default:
+\fBSOMEWHERE\fR
+.PP
+Available options:
+.RS 4
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBNOWHERE\fR: disables the menu search
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBITEMSTART\fR: typed text matches at the start of a menu items
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBSOMEWHERE\fR: typed text matches somewhere in a menu item
+.RE
+.RE
+.RE
+.PP
+\fBnoFocusWhileTypingDelay\fR: \fIinteger\fR
+.RS 4
+Delay in milliseconds to prevent windows from focusing if typing\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBobeyHeads\fR: \fIboolean\fR
+.RS 4
+Controls multi\-monitor dimension detection and setup\&. Effectively forces 0 (all heads) for multi\-monitor related functions and treats everything as a single monitor\&. Affects snapping, toolbar and most head related commands\&. Single monitor users may as well leave this off\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBopaqueMove\fR: \fIboolean\fR
+.RS 4
+Whether moving windows draw contents or a outline border\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBopaqueResize\fR: \fIboolean\fR
+.RS 4
+Whether resizing windows draw contents or a outline border\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBopaqueResizeDelay\fR: \fIinteger\fR
+.RS 4
+Controls the resize update time, in milliseconds, when resizing a window in opaque mode\&. Low values resize "smoother" but can be slow or have odd effects depending on the client\&. For example, gedit looks fine, while browsers can have the X solitaire like effect trying to catch up, or even pixelated updates\&. High values will cause notable latency while resizing\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBrowPlacementDirection\fR: \fILEFTRIGHT\fR | \fIRIGHTLEFT\fR
+.RS 4
+Controls the row direction in which windows are tiled using the Col/RowSmartPlacement strategy\&.
+.sp
+Default:
+\fBLEFTRIGHT\fR
+.RE
+.PP
+\fBshowWindowPosition\fR: \fIboolean\fR
+.RS 4
+Displays a small window with position and geometry information while moving or resizing windows\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBstrftimeFormat\fR: \fIdate\fR
+.RS 4
+Current time in the toolbar Clock by
+\fBstrftime(3)\fR
+or
+\fBdate(1)\fR
+format\&.
+.sp
+Default:
+\fB%a %b %d %k:%M\fR
+.RE
+.PP
+\fBstruts\&.<n>\fR: \fIinteger\fR, \fIinteger\fR, \fIinteger\fR, \fIinteger\fR
+.RS 4
+Reserve workspace area of
+\fIhead\fR
+by
+\fIleft\fR,
+\fIright\fR,
+\fItop\fR,
+\fIbottom\fR
+pixels (positive integers)\&. This allows you to keep a fraction of the desktop visible against maximized windows and new window placements\&.
+.sp
+Default:
+\fBnot in config\fR
+.PP
+Example:
+.RS 4
+struts\&.<n> allows to control this for individual heads (<n> starts counting at 0, which is ALL heads/monitors)
+.sp
+struts\&.0: 50,0,0,0
+.RE
+.RE
+.PP
+\fBstyleFile\fR: \fIlocation\fR
+.RS 4
+Location of the currently selected style\&. See
+\fBshynebox\-style(5)\fR
+for details\&.
+.sp
+Default:
+\fB@pkgdatadir@/styles/bloe\fR
+.RE
+.PP
+\fBstyleOverlay\fR: \fIlocation\fR
+.RS 4
+Location of the style overlay file\&. See
+\fBshynebox\-style(5)\fR
+for details\&.
+.sp
+Default:
+\fB~/\&.shynebox/overlay\fR
+.RE
+.PP
+\fBsystray\&.pin{Left|Right}\fR: \fIclasses\fR
+.RS 4
+Sorts system tray icons left\-to\-right by a comma\-separated, case\-insensitive, CLASSCLASS property list of the X clients\&. (The second field of WM_CLASS found in the
+\fBxprop(1)\fR
+utility)\&.
+.sp
+Consider a system tray "A C B D E F"\&. With pinRight set to "A, B" and pinLeft set to "E, F" it will look like "E F [C D] A B" where [] are randomly ordered (usually first joined is left)\&.
+.sp
+Default:
+\fBblank\fR
+.RE
+.PP
+\fBtabs\&.focusModel\fR: \fIMOUSETABFOCUS\fR | \fICLICKTABFOCUS\fR
+.RS 4
+Method to focus tabs\&. Mouse will change tabs when hovered over and click will require a click to change tabs\&.
+.sp
+Default:
+\fBCLICKTABFOCUS\fR
+.RE
+.PP
+\fBtabs\&.inTitlebar\fR: \fIboolean\fR
+.RS 4
+Whether tabs should be embedded in titlebars or placed outside along window edges\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBtabs\&.maxOver\fR: \fIboolean\fR
+.RS 4
+Determines if windows will exclude external tabs in their size geometry\&. Setting to false will include the external tabs in total size calculations for positioning and maximizing\&. Also determines if snapping will try to snap to external tab dimensions\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBtabs\&.placement\fR: \fIplacement\fR
+.RS 4
+What corner or edge external tabs will be outside of windows\&. It has the same possible values as
+\fBtoolbar\&.placement\fR
+below\&.
+.sp
+Default:
+\fBTOPLEFT\fR
+.RE
+.PP
+\fBtabs\&.textPadding\fR: \fIinteger\fR
+.RS 4
+Text padding of tab titles in pixels\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBtabs\&.usePixmap\fR: \fIboolean\fR
+.RS 4
+Controls showing image\-icons of applications in Tabs\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBtabs\&.width\fR: \fIinteger\fR
+.RS 4
+Width of external tabs in pixels\&.
+.sp
+Default:
+\fB64\fR
+.RE
+.PP
+\fBtitlebar\&.{left|right}\fR: \fIbuttons\fR
+.RS 4
+Space\-delimited list of buttons to place in titlebars of windows\&.
+.sp
+Default left:
+\fBStick\fR
+.sp
+Default right:
+\fBMinimize Maximize Close\fR
+.sp
+The available options are:
+\fBClose Maximize Minimize Shade Stick Menu\fR
+.RE
+.PP
+\fBtoolbar\&.autoHide\fR: \fIboolean\fR
+.RS 4
+Hides the toolbar when the mouse exits its given area and brings it back when the mouse enters the toolbar area\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBtoolbar\&.autoRaise\fR: \fIboolean\fR
+.RS 4
+Raises the toolbar to the ABOVEDOCK layer when the mouse is over it\&. When the mouse leaves the toolbar it goes back to its configured area\&. If a window is already over the toolbar, the mouse can not "enter" and thus it does not raise\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBtoolbar\&.button\&.<name>\&.commands\fR: \fIstring\fR
+.RS 4
+Colon\-delimited list of commands that are executed when the respective mouse button is pressed on the matching
+\fBtoolbar\&.button\&.<name>\&.label\fR\&.
+.sp
+The commands are the same as those detailed in
+\fBshynebox\-keys(5)\fR\&.
+.sp
+Example: "toolbar\&.button\&.test\&.commands: MoveTo 0 0 : : Close"
+.sp
+Will move the current window on Mouse1, do nothing on Mouse2, and close it on Mouse3\&.
+.sp
+Note: that if you want to Exec anything with a ":" as an argument you may need to make it a file script (\fBsh\fR,
+\fBpy\fR, so on)\&.
+.sp
+Default:
+\fBnot in config\fR
+.RE
+.PP
+\fBtoolbar\&.button\&.<name>\&.label\fR: \fIstring\fR
+.RS 4
+A custom text label for toolbar buttons\&. Technically any number of these can be made but must have a matching entry for
+\fBtoolbar\&.button\&.<name>\&.commands\fR\&.
+.sp
+Default:
+\fBnot in config\fR
+.RE
+.PP
+\fBtoolbar\&.claimSpace\fR: \fIboolean\fR
+.RS 4
+Reserve space (a strut) on the screen for the toolbar\&. This prevents new windows from overlapping the toolbar\(cqs area and maximized window from using that area unless
+\fBfullMaximization\fR
+is set\&.
+.sp
+Default:
+\fBfalse\fR
+.RE
+.PP
+\fBtoolbar\&.height\fR: \fIinteger\fR
+.RS 4
+Set a maximum height for the toolbar\&. A value of 0 gives the style file control over the toolbar height\&.
+.sp
+Default:
+\fB0\fR
+.RE
+.PP
+\fBtoolbar\&.layer\fR: \fIlayer\fR
+.RS 4
+The default layer you want the toolbar on\&. See
+\fBLAYER\fR
+section for more information\&.
+.sp
+Default:
+\fBDOCK\fR
+.RE
+.PP
+\fBtoolbar\&.onHead\fR: \fIinteger\fR
+.RS 4
+The monitor to place the toolbar on for multi\-monitor setups\&. Head 0 will go across any monitor in the appropriate direction depending on your toolbar placement and
+\fBxrandr(1)\fR
+configuration\&.
+.sp
+Default:
+\fB1\fR
+.RE
+.PP
+\fBtoolbar\&.placement\fR: \fIplacement\fR
+.RS 4
+Which edge or corner of the screen to place the toolbar\&.
+.sp
+Default:
+\fBBOTTOMCENTER\fR
+.PP
+Possible options are:
+.RS 4
+\fBBOTTOMLEFT BOTTOMCENTER BOTTOMRIGHT LEFTBOTTOM LEFTCENTER LEFTTOP RIGHTBOTTOM RIGHTCENTER RIGHTTOP TOPLEFT TOPCENTER TOPRIGHT\fR
+.RE
+.RE
+.PP
+\fBtoolbar\&.tools\fR: \fItools\fR
+.RS 4
+A comma\-separated list of the tools plugged into the toolbar\&. Read the
+\fBToolbar\fR
+section for a description of each\&. They may be specified in any order and will appear in the order given\&. Only a single item of a single type is supported\&.
+.sp
+Default:
+\fBworkspacename, iconbar, systemtray, clock\fR
+.PP
+Possible tools:
+.RS 4
+\fBclock iconbar systemtray workspacename button\&.<name> spacer_<n>\fR
+.RE
+.RE
+.PP
+\fBtoolbar\&.visible\fR: \fIboolean\fR
+.RS 4
+The user can set whether they want to have a toolbar on screen at all\&. Setting to false removes the toolbar from the screen\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBtoolbar\&.widthPercent\fR: \fIinteger\fR
+.RS 4
+Percent of head/monitor size to determine toolbar size\&.
+.sp
+Default:
+\fB100\fR
+.RE
+.PP
+\fBtooltipDelay\fR: \fIinteger\fR
+.RS 4
+Delay in milliseconds that hovering the mouse makes tooltips, like oversized titles, pop\-up a window with text\&.
+.sp
+Default:
+\fB500\fR
+.RE
+.PP
+\fBwindowMenuFile\fR: \fIlocation\fR
+.RS 4
+Location of the window menu file\&.
+.sp
+Default:
+\fB~/\&.shynebox/windowmenu\fR
+.RE
+.PP
+\fBwindowPlacement\fR: \fIstrategy\fR
+.RS 4
+Specifies how new windows are placed\&.
+.sp
+Default:
+\fBROWMINOVERLAPPLACEMENT\fR
+.PP
+Available strategies:
+.RS 4
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBROWSMARTPLACEMENT\fR: place windows in rows\(->cols next to the focused window, and eventually back around covering placed windows
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCOLSMARTPLACEMENT\fR: same as ROWSMART but columns\(->rows
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBROWMINOVERLAPPLACEMENT\fR: place windows in rows\(->cols with minimal overlapping of all de\-iconified windows
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCOLMINOVERLAPPLACEMENT\fR: same as ROWMIN but columns\(->rows
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCASCADEPLACEMENT\fR: places windows below the titlebar of the previous placed one
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBCENTERPLACEMENT\fR: places windows in the center of the current monitor
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBUNDERMOUSEPLACEMENT\fR: places windows under the mouse
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fBAUTOTABPLACEMENT\fR: adds new windows as a tab in the current window
+.RE
+.RE
+.RE
+.PP
+\fBworkspaceNames\fR: \fIstrings\fR
+.RS 4
+A comma separated list of workspace names\&.
+.sp
+Default:
+\fB1, 2, 3, 4\fR
+.RE
+.PP
+\fBworkspaceWarpingHorizontal\fR: \fIboolean\fR
+.RS 4
+Controls being able to change workspaces by dragging a window across the edge of the screen\&. (This means total screen, or head 0\&.) Controls warping Left and Right\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBworkspaceWarpingHorizontalOffset\fR: \fIinteger\fR
+.RS 4
+Pixel offset to warp the mouse Left and Right\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBworkspaceWarpingVertical\fR: \fIboolean\fR
+.RS 4
+Controls warping Up and Down\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBworkspaceWarpingVerticalOffset\fR: \fIinteger\fR
+.RS 4
+Pixel offset to warp the mouse Up and Down\&.
+.sp
+Default:
+\fBtrue\fR
+.RE
+.PP
+\fBworkspaces\fR: \fIinteger\fR
+.RS 4
+The number of active workspaces\&. This can be lower than the total names\&.
+.sp
+Default:
+\fB4\fR
+.RE
+.sp
+For \fIusePixmap\fR items, some programs do not provide an icon\&. However with \fB~/\&.Xdefaults\fR or another \fBxrdb(1)\fR file you can supply a custom icon with something like: "Urxvt*iconFile: /path/to/some\&.png" then restarting shynebox or reloading with "xrdb \-merge ~/\&.Xdefaults"\&.
+.SH "ENVIRONMENT"
+.PP
+\fBXDG_CONFIG_HOME\fR / \fBHOME\fR
+.RS 4
+Shynebox uses
+\fB$XDG_CONFIG_HOME\fR
+and then
+\fB$HOME\fR
+to find the
+\fBinit\fR
+file and to resolve config file and directory names\&.
+.RE
+.PP
+\fBDBUS_SESSION_BUS_ADDRESS\fR
+.RS 4
+Launching
+\fBstartshynebox\fR
+with
+\fIdbus\-run\-session\fR
+allows programs to pass along the
+\fBDBUS_SESSION_BUS_ADDRESS\fR
+variable\&.
+.RE
+.PP
+\fBDISPLAY\fR
+.RS 4
+When no other display was given on the command line, shynebox will start on the display specified by this variable\&.
+.RE
+.sp
+Shynebox can also take advantage of other environment variables if they are set before shynebox is started\&. For example, if \fB$TERM\fR is set, then it will be available whenever shynebox uses the shell, such as the \(oqkeys\(cq file \fBExecCommand\fR or the root menu\(cqs \fB[exec]\fR tag\&. See \fBshynebox\-keys(5)\fR and \fBshynebox\-menu(5)\fR for details\&.
+.sp
+For more information about environment variables in general, see your shell\(cqs manual\&.
+.SH "SIGNALS"
+.sp
+shynebox responds to the following signals:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+SIGUSR1 restarts shynebox\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+SIGUSR2 Forces reloading of configuration\&.
+.RE
+.SH "AUTHORS"
+.sp
+shynebox was written by zlice\&.
+.sp
+fluxbox is written and maintained by Henrik Kinnunen <fluxgen at fluxbox org>, Simon Bowden <rathnor at fluxbox org>, Mathias Gumz <akira at fluxbox org>, and Mark Tiefenbruck <mark at fluxbox org>, with contributions and patches merged from many individuals around the world\&.
+.sp
+Blackbox was written and maintained by Brad Hughes <blackbox at alug org> and Jeff Raven <jraven at psu edu>\&.
+.sp
+This manpage is the combined work of:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+zlice updated for shynebox
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Jim Ramsay <i\&.am at jimramsay com> (>fluxbox\-1\&.0\&.0)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Curt Micol <asenchi at asenchi com> (>fluxbox\-0\&.9\&.11)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Tobias Klausmann <klausman at users sourceforge net> (\(lafluxbox\-0\&.9\&.11)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Grubert <grubert at users sourceforge net> (fluxbox)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Matthew Hawkins <matt at mh dropbear id au> (blackbox)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Wilbert Berendsen <wbsoft at xs4all nl> (blackbox)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Numerous other languages could be available if someone jumps in\&.
+.RE
+.SH "ONLINE DOCUMENTATION"
+.sp
+Most old Fluxbox documentation should still hold up\&.
+.sp
+\m[blue]\fBhttps://github\&.com/zlice/shynebox\fR\m[]
+.SH "BUGS"
+.sp
+You can make a git PR\&.
+.SH "SEE ALSO"
+.sp
+shynebox\-apps(5) shynebox\-keys(5) shynebox\-style(5) shynebox\-menu(5) shynebox\-remote(1) sbsetroot(1) sbsetbg(1) sbrun(1) startshynebox(1)
+.SH "AUTHOR"
+.PP
+\fBzlice https://github\&.com/zlice/shynebox\fR
+.RS 4
+Author.
+.RE

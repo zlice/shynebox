@@ -1,0 +1,22 @@
+bin_PROGRAMS += sbrun
+
+sbrun_CPPFLAGS = \
+  $(AM_CPPFLAGS) \
+  $(XRANDR_CFLAGS) \
+  -I$(src_incdir)
+
+sbrun_SOURCES = \
+  util/sbrun/SbRun.hh \
+  util/sbrun/SbRun.cc \
+  util/sbrun/main.cc \
+  util/sbrun/sbrun.xpm
+
+sbrun_LDADD = libtk.a \
+  $(FRIBIDI_LIBS) \
+  $(FONTCONFIG_LIBS) \
+    $(FREETYEP_LIBS) \
+  $(XFT_LIBS) \
+  $(XPM_LIBS) \
+  $(XRENDER_LIBS) \
+  $(RANDR_LIBS) \
+  $(X11_LIBS)

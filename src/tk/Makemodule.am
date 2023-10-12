@@ -1,0 +1,142 @@
+noinst_LIBRARIES = libtk.a
+
+if XFT
+xft_SOURCE = \
+	src/tk/XftFontImp.hh \
+	src/tk/XftFontImp.cc
+endif
+
+if MULTIBYTE
+xmb_SOURCE = \
+	src/tk/XmbFontImp.hh \
+	src/tk/XmbFontImp.cc
+endif
+
+if XPM
+xpm_SOURCE = \
+	src/tk/ImageXPM.hh \
+	src/tk/ImageXPM.cc
+endif
+
+if IMLIB2
+imlib2_SOURCE = \
+	src/tk/ImageImlib2.hh \
+	src/tk/ImageImlib2.cc
+endif
+
+libtk_a_CPPFLAGS = \
+	$(FREETYPE2_CFLAGS) \
+	$(FRIBIDI_CFLAGS) \
+	$(AM_CPPFLAGS) \
+	-I$(src_incdir) \
+	-I$(nls_incdir)
+
+libtk_a_SOURCES = \
+	$(imlib2_SOURCE) \
+	${xft_SOURCE} \
+	${xmb_SOURCE} \
+	${xpm_SOURCE} \
+	src/tk/App.cc \
+	src/tk/App.hh \
+	src/tk/AutoReloadHelper.cc \
+	src/tk/AutoReloadHelper.hh \
+	src/tk/BoolMenuItem.hh \
+	src/tk/BorderTheme.cc \
+	src/tk/BorderTheme.hh \
+	src/tk/Button.cc \
+	src/tk/Button.hh \
+	src/tk/ButtonTrain.cc \
+	src/tk/ButtonTrain.hh \
+	src/tk/CachedPixmap.cc \
+	src/tk/CachedPixmap.hh \
+	src/tk/Color.cc \
+	src/tk/Color.hh \
+	src/tk/ColorLUT.cc \
+	src/tk/ColorLUT.hh \
+	src/tk/Config.cc \
+	src/tk/Config.hh \
+	src/tk/Command.hh \
+	src/tk/CommandParser.hh \
+	src/tk/EventHandler.hh \
+	src/tk/EventManager.cc \
+	src/tk/EventManager.hh \
+	src/tk/SbDrawable.cc \
+	src/tk/SbDrawable.hh \
+	src/tk/SbPixmap.cc \
+	src/tk/SbPixmap.hh \
+	src/tk/SbString.cc \
+	src/tk/SbString.hh \
+	src/tk/SbTime.cc \
+	src/tk/SbTime.hh \
+	src/tk/SbWindow.cc \
+	src/tk/SbWindow.hh \
+	src/tk/FileUtil.cc \
+	src/tk/FileUtil.hh \
+	src/tk/Font.cc \
+	src/tk/Font.hh \
+	src/tk/FontImp.hh \
+	src/tk/GContext.cc \
+	src/tk/GContext.hh \
+	src/tk/I18n.cc \
+	src/tk/I18n.hh \
+	src/tk/ITypeAheadable.hh \
+	src/tk/Image.cc \
+	src/tk/Image.hh \
+	src/tk/ImageControl.cc \
+	src/tk/ImageControl.hh \
+	src/tk/IntMenuItem.hh \
+	src/tk/KeyUtil.cc \
+	src/tk/KeyUtil.hh \
+	src/tk/Layer.cc \
+	src/tk/Layer.hh \
+	src/tk/LayerItem.cc \
+	src/tk/LayerItem.hh \
+	src/tk/LayerManager.cc \
+	src/tk/LayerManager.hh \
+	src/tk/LogicCommands.cc \
+	src/tk/LogicCommands.hh \
+	src/tk/MacroCommand.cc \
+	src/tk/MacroCommand.hh \
+	src/tk/Menu.cc \
+	src/tk/Menu.hh \
+	src/tk/MenuItem.cc \
+	src/tk/MenuItem.hh \
+	src/tk/MenuSearch.hh \
+	src/tk/MenuSearch.cc \
+	src/tk/MenuSeparator.cc \
+	src/tk/MenuSeparator.hh \
+	src/tk/MenuTheme.cc \
+	src/tk/MenuTheme.hh \
+	src/tk/NotCopyable.hh \
+	src/tk/Orientation.hh \
+	src/tk/PixmapWithMask.hh \
+	src/tk/RadioMenuItem.hh \
+	src/tk/RegExp.cc \
+	src/tk/RegExp.hh \
+	src/tk/RelCalcHelper.cc \
+	src/tk/RelCalcHelper.hh \
+	src/tk/Shape.cc \
+	src/tk/Shape.hh \
+	src/tk/SimpleCommand.hh \
+	src/tk/Slot.hh \
+	src/tk/StringUtil.cc \
+	src/tk/StringUtil.hh \
+	src/tk/TextBox.cc \
+	src/tk/TextBox.hh \
+	src/tk/TextButton.cc \
+	src/tk/TextButton.hh \
+	src/tk/TextTheme.cc \
+	src/tk/TextTheme.hh \
+	src/tk/TextUtils.cc \
+	src/tk/TextUtils.hh \
+	src/tk/Texture.cc \
+	src/tk/Texture.hh \
+	src/tk/TextureRender.cc \
+	src/tk/TextureRender.hh \
+	src/tk/Theme.cc \
+	src/tk/Theme.hh \
+	src/tk/ThemeItems.cc \
+	src/tk/Timer.cc \
+	src/tk/Timer.hh \
+	src/tk/XFontImp.cc \
+	src/tk/XFontImp.hh

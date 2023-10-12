@@ -1,0 +1,91 @@
+sbsetroot(1)
+============
+zlice https://github.com/zlice/shynebox
+v2023.1.0, 11 October 2023
+:man source:   sbsetroot.txt
+:man version:  {revision}
+:man manual:   Shynebox Manual
+
+NAME
+----
+sbsetroot - a simple background utility used by the shynebox(1) window manager,
+originally written for and by the original blackbox(1) window manager.
+
+SYNOPSIS
+--------
+*sbsetroot* [-display 'display'] -solid 'color'
+
+*sbsetroot* [-display 'display'] -mod 'x' 'y' -fg 'color' -bg 'color'
+
+*sbsetroot* [-display 'display'] -gradient 'texture' -from 'color' -to 'color'
+
+*sbsetroot* -help
+
+DESCRIPTION
+-----------
+*sbsetroot(1)* is a utility that can control the appearance of the root
+window in three ways: Either give it a solid color, or write a two
+color modula pattern to it, or render a gradient texture based on two
+different colors.
+
+sbsetroot resembles *xsetroot(1)* in this functionality but it supports
+multiple-screen displays, and gradient textures the same way as blackbox or
+fluxbox does. It doesn't handle cursors. sbsetroot was originally part of
+the Blackbox package and was carried over with the code that became Fluxbox and
+then Shynebox. It was called bsetroot/fbsetroot back in those days.
+
+If any errors are encountered, sbsetroot will use either *gxmessage(1)* or
+*xmessage(1)* to inform the user of errors.
+
+OPTIONS
+-------
+sbsetroot operates in three ways, you must choose one of  the  first  3
+options:
+
+*-solid* 'color'::
+Sets the root window to specified color.
+
+*-mod* 'x' 'y'::
+Creates a modula pattern. You must specify *-bg* and *-fg* colors.
+
+*-gradient* 'texturestring'::
+Renders the specified texture string to the root window.
++
+'texturestring' may be one of:;;
+    *Horizontal  /  Vertical / Diagonal / Crossdiagonal / Pipecross / Elliptic /
+Rectangle / Pyramid*
++
+Select one of these texture types, they only apply when  *-gradient* is
+specified.  You must also specify both a *-from* and a *-to* color.
+
+*-display* 'display'::
+Tells sbsetroot to connect to the specified display.
+
+*-bg, -background* 'color'::
+Background color.  Needed for *-mod* patterns.
+
+*-fg, -foreground* 'color'::
+Foreground color.  Needed for *-mod* patterns.
+
+*-from* 'color'::
+Start color for rendering textures.  Needed for *-gradient* patterns.
+
+*-to* 'color'::
+Ending color for rendering textures.  Needed for *-gradient* patterns.
+
+*-help*::
+Prints version info and short help text.
+
+AUTHORS
+-------
+This manpage was modified by Curt "Asenchi" Micol <asenchi at asenchi.com>
+for the Fluxbox window manager.
+
+Further updates for fluxbox-1.1.2 and conversion to asciidoc format by Jim
+Ramsay <i.am at jimramsay.com>
+
+Updated for shynebox by zlice
+
+SEE ALSO
+--------
+shynebox(1) sbsetbg(1) xsetroot(1) xmessage(1) gxmessage(1)

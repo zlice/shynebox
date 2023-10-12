@@ -1,0 +1,31 @@
+# util/Makefile.am for Shynebox
+
+bin_SCRIPTS = \
+	util/sbsetbg \
+	util/startshynebox
+EXTRA_DIST += \
+	util/sbsetbg
+PATHFILES += \
+	util/startshynebox
+
+bin_PROGRAMS += \
+	sbsetroot
+
+sbsetroot_SOURCES = \
+	src/SbAtoms.cc \
+	src/SbRootWindow.cc \
+	util/sbsetroot.cc \
+	util/sbsetroot.hh
+sbsetroot_LDADD = \
+	libtk.a \
+	$(FONTCONFIG_LIBS) \
+	$(FRIBIDI_LIBS) \
+	$(XFT_LIBS) \
+	$(XRENDER_LIBS)
+
+sbsetroot_CPPFLAGS = \
+	$(AM_CPPFLAGS) \
+	-I$(tk_incdir) \
+	-I$(src_incdir) \
+	-I$(nls_incdir)
+
