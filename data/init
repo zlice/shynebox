@@ -1,0 +1,71 @@
+appsFile:
+autoRaiseDelay: 0
+autoRaiseWindows: true
+cacheLife: 50
+cacheMax: 2000
+clickRaisesWindows: true
+clientMenu.usePixmap: true
+colPlacementDirection: TOPBOTTOM
+colorsPerChannel: 4
+defaultDeco: NORMAL
+doubleClickInterval: 250
+edgeResizeSnapThreshold: 0
+edgeSnapThreshold: 0
+focusModel: CLICKFOCUS
+focusNewWindows: true
+focusSameHead: false
+fullMaximization: false
+iconbar.alignment: RELATIVE
+iconbar.iconTextPadding: 0
+iconbar.iconWidth: 128
+iconbar.iconifiedPattern: %t
+iconbar.mode: {static groups} (workspace)
+iconbar.usePixmap: true
+keyFile:
+maxDisableMove: false
+maxDisableResize: false
+maxIgnoreIncrement: true
+menuDelay: 200
+menuFile:
+menuSearch: SOMEWHERE
+noFocusWhileTypingDelay: 0
+obeyHeads: false
+opaqueMove: true
+opaqueResize: false
+opaqueResizeDelay: 50
+rowPlacementDirection: LEFTRIGHT
+showWindowPosition: false
+strftimeFormat: %a %d %b %k:%M
+styleFile:
+styleOverlay:
+systray.pinLeft
+systray.pinRight
+tabs.focusModel: CLICKTABFOCUS
+tabs.inTitlebar: true
+tabs.maxOver: false
+tabs.placement: TOPLEFT
+tabs.textPadding: 0
+tabs.usePixmap: true
+tabs.width: 64
+titlebar.left: Stick
+titlebar.right: Minimize Maximize Close
+toolbar.autoHide: false
+toolbar.autoRaise: false
+toolbar.height: 0
+toolbar.layer: DOCK
+toolbar.maxOver: false
+toolbar.onHead: 1
+toolbar.placement: BOTTOMCENTER
+toolbar.tools: workspacename, iconbar, systemtray, clock
+toolbar.visible: true
+toolbar.widthPercent: 100
+tooltipDelay: 500
+windowMenuFile:
+windowPlacement: ROWMINOVERLAPPLACEMENT
+workspaceNames: 1,2,3,4
+workspaceWarping: true
+workspaceWarpingHorizontal: true
+workspaceWarpingHorizontalOffset: 1
+workspaceWarpingVertical: true
+workspaceWarpingVerticalOffset: 1
+workspaces: 4

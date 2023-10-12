@@ -28,7 +28,7 @@ Will you notice a difference? Probably not.
 
 Should you use it? Go for it?
 
-> and because I'm sure someone will ask: [WAYLAND](./WAYLAND.md)
+(and because I'm sure someone will ask: [WAYLAND](./WAYLAND.md))
 
 # Changes / Removals
 

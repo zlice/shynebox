@@ -1,0 +1,93 @@
+# Example menu fo Shynebox Window Manager
+# Old tools to generate menus should still work
+# Syntax hasn't changed, and spacing isn't important
+# but new-lines are
+
+[begin] (Shynebox)
+[encoding] {UTF-8}
+   [exec] (urxvt) {urxvt}
+   [exec] (xterm) {xterm}
+   [exec] (chromium) {chromium}
+   [exec] (firefox) {firefox}
+   [exec] (Run) {sbrun}
+[nop]
+[submenu] (Terminals)
+   [exec] (xterm) {xterm}
+   [nop] (dupes for examples)
+   [nop] (this is a submenu)
+   [nop] ('nop' can comment)
+   [nop] (or blank lines)
+   [nop]
+   [nop] ('separator' for a line)
+   [separator]
+   [exec] (urxvt) {urxvt}
+[end]
+   [exec] (.Xdefaults) {xrdb -load $HOME/.Xdefaults}
+[submenu] (Net)
+[submenu] (Browsers)
+   [nop] (submenu in submenu)
+   [exec] (chromium) {chromium}
+   [exec] (firefox) {firefox}
+[end]
+[submenu] (Analyzers)
+   [exec] (wireshark) {wireshark}
+[end]
+[end]
+[submenu] (Editors)
+   [exec] (gedit) {gedit}
+   [exec] (vim) {urxvt -e vim}
+[end]
+[submenu] (Multimedia)
+[submenu] (Graphics)
+   [exec] (gimp) {gimp}
+   [exec] (inkscape) {inkscape}
+   [exec] (xscreensaver-demo) {xscreensaver-demo}
+   [exec] (blender) {blender -w}
+   [exec] (Mesa gears) {gears}
+[end]
+[submenu] (Audio)
+   [exec]  (audacity) {audacity}
+   [exec]  (alsamixer) {urxvt -e alsamixer}
+[end]
+[submenu] (X-utils)
+   [exec] (xfontsel) {xfontsel}
+   [exec] (xclock) {xclock}
+   [exec] (.Xdefaults) {xrdb -load $HOME/.Xdefaults}
+[end]
+[end]
+[submenu] (Office)
+   [exec] (xclock) {xclock}
+   [exec] (Libre Office) {libreoffice}
+[end]
+[submenu] (System Tools)
+   [exec] (top) {urxvt -e top}
+   [exec] (htop) {urxvt -e htop}
+   [exec] (iotop) {urxvt -e iotop}
+[end]
+[submenu] (Tools)
+   [exec] (Screenshot - JPG) {import screenshot.jpg && display -resize 50% screenshot.jpg}
+   [exec] (Screenshot - PNG) {import screenshot.png && display -resize 50% screenshot.png}
+   [exec] (Lock screen) {xscreensaver-command -lock}
+   [exec] (Run) {sbrun}
+[end]
+[nop]
+[submenu] (Shynebox menu)
+   [config] (Configure)
+[submenu] (System Styles) {Choose a style...}
+   [stylesdir] (/usr/share/shynebox/styles)
+[end]
+[submenu] (User Styles) {Choose a style...}
+   [nop] (home dir)
+   [stylesdir] (~/.shynebox/styles)
+   [nop] (xdg config dir)
+   [stylesdir] (~/.config/shynebox/styles)
+[end]
+   [workspaces] (Workspace List)
+   [reconfig] (Reload config)
+   [restart] (Restart)
+   [exec] (About) {(shynebox -v; shynebox -info | sed 1d) | xmessage -file - -center}
+   [separator]
+   [exit] (Exit)
+[end]
+[endencoding]
+[end]

@@ -25,9 +25,6 @@ Makefile.in
 /config.log
 /config.status
 /configure
-/data/apps
-/data/init
-/data/menu
 /sbrun
 /sbsetroot
 /shynebox
