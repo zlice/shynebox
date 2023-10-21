@@ -590,8 +590,9 @@ Application* Remember::find(WinClient &winclient) {
     return wc_it->second;
   else {
     for (auto it : *m_pats) {
-      if (it.first->match(winclient)
-          && it.second->is_transient == winclient.isTransient() ) {
+      //if (it.first->match(winclient)
+      //    && it.second->is_transient == winclient.isTransient() ) {
+      if (it.first->match(winclient) ) {
         it.first->addMatch();
         m_clients[&winclient] = it.second;
         return it.second;
@@ -671,64 +672,65 @@ void Remember::reload() {
       int pos = getStringBetween(key, line.c_str(), '[', ']');
       string lc_key = toLower(key);
 
-      if (pos > 0) {
-        if (lc_key == "app" || lc_key == "transient") {
-          ClientPattern *pat = new ClientPattern(line.c_str() + pos);
-          if (!in_group) {
-              if ((err = pat->error() ) == 0) {
-                bool transient = (lc_key == "transient");
-                Application *app = findMatchingPatterns(pat,
-                                       old_pats, transient, false);
-                if (app) {
-                  app->reset();
-                  reused_apps.insert(app);
-                } else
-                  app = new Application(transient, false);
+    if (pos > 0 && (lc_key == "app" || lc_key == "transient") ) {
+      ClientPattern *pat = new ClientPattern(line.c_str() + pos);
+      if (!in_group) {
+          if ((err = pat->error() ) == 0) {
+            bool transient = (lc_key == "transient");
+            Application *app = findMatchingPatterns(pat,
+                                   old_pats, transient, false);
+            if (app) {
+              app->reset();
+              reused_apps.insert(app);
+            } else
+              app = new Application(transient, false);
 
-                m_pats->push_back(make_pair(pat, app) );
-                row += parseApp(apps_file, *app);
-              } else {
-                cerr<<"Error reading apps file at line "<<row<<", column "<<(err+pos)<<".\n";
-                delete pat; // since it didn't work
-              }
-          } else
-            grouped_pats.push_back(pat);
-        } else if (lc_key == "startup" && sb.isStartup() ) {
-          if (!handleStartupItem(line, pos) )
-            cerr<<"Error reading apps file at line "<<row<<".\n";
-          // save the item even if it was bad (aren't we nice)
-          m_startups.push_back(line.substr(pos) );
-        } else if (lc_key == "group") {
-          in_group = true;
-          if (line.find('(') != string::npos)
-            pat = new ClientPattern(line.c_str() + pos);
-        }
+            m_pats->push_back(make_pair(pat, app) );
+            row += parseApp(apps_file, *app);
+          } else {
+            cerr<<"Error reading apps file at line "<<row<<", column "<<(err+pos)<<".\n";
+            delete pat; // since it didn't work
+          }
+      } else
+        grouped_pats.push_back(pat);
+    } else if (pos > 0 && (lc_key == "startup" && sb.isStartup() ) ) {
+      if (!handleStartupItem(line, pos) )
+        cerr<<"Error reading apps file at line "<<row<<".\n";
+      // save the item even if it was bad (aren't we nice)
+      m_startups.push_back(line.substr(pos) );
+    } else if (pos > 0 && (lc_key == "group") ) {
+      in_group = true;
+      if (line.find('(') != string::npos)
+        pat = new ClientPattern(line.c_str() + pos);
     } else if (in_group) {
-        // otherwise assume that it is the start of the attributes
-        Application *app = 0;
-        // search for a matching app
-        for (auto it : grouped_pats)
-          app = findMatchingPatterns(it, old_pats, false, in_group, pat);
+      // otherwise assume that it is the start of the attributes
+      Application *app = 0;
+      // search for a matching app
+      for (auto it : grouped_pats) {
+        app = findMatchingPatterns(it, old_pats, false, in_group, pat);
+        if (app)
+          break;
+      }
 
-        if (!app)
-          app = new Application(false, in_group, pat);
-        else
-          reused_apps.insert(app);
+      if (!app)
+        app = new Application(false, in_group, pat);
+      else
+        reused_apps.insert(app);
 
-        while (!grouped_pats.empty() ) {
-          // associate all the patterns with this app
-          m_pats->push_back(make_pair(grouped_pats.front(), app) );
-          grouped_pats.pop_front();
-        }
+      while (!grouped_pats.empty() ) {
+        // associate all the patterns with this app
+        m_pats->push_back(make_pair(grouped_pats.front(), app) );
+        grouped_pats.pop_front();
+      }
 
-        // we hit end... probably don't have attribs for the group
-        // so finish it off with an empty application
-        // otherwise parse the app
-        if (!(pos>0 && lc_key == "end") )
-          row += parseApp(apps_file, *app, &line);
-        in_group = false;
+      // we hit end... probably don't have attribs for the group
+      // so finish it off with an empty application
+      // otherwise parse the app
+      if (!(pos > 0 && lc_key == "end") )
+        row += parseApp(apps_file, *app, &line);
+      in_group = false;
     } else
-        cerr<<"Error in apps file on line "<<row<<".\n";
+      cerr<<"Error in apps file on line "<<row<<".\n";
     // if pos / else if in_group
     }
   }
