@@ -1639,7 +1639,7 @@ unsigned int BScreen::maxBottom(int head, bool ignore_struts) const {
 }
 
 Strut *BScreen::requestStrut(int head, int left, int right, int top, int bottom) {
-  std::clamp(head, 0, numHeads() - 1);
+  head = std::clamp(head, 0, numHeads() - 1);
 
   int begin = head;
   int end   = begin + 1;
