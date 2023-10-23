@@ -51,9 +51,9 @@ titlebar.left: Stick
 titlebar.right: Minimize Maximize Close
 toolbar.autoHide: false
 toolbar.autoRaise: false
+toolbar.claimSpace: true
 toolbar.height: 0
 toolbar.layer: DOCK
-toolbar.maxOver: false
 toolbar.onHead: 1
 toolbar.placement: BOTTOMCENTER
 toolbar.tools: workspacename, iconbar, systemtray, clock
