@@ -1,6 +1,6 @@
 dnl Initialize autoconf and automake
 AC_PREREQ([2.71])
-AC_INIT([shynebox],[2023-1.0],[],[],[https://github.com/zlice/shynebox])
+AC_INIT([shynebox],[2023-1.1],[],[],[https://github.com/zlice/shynebox])
 AC_CONFIG_SRCDIR([src/shynebox.cc])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
