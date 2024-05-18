@@ -94,7 +94,7 @@ void raiseShyneboxWindow(ShyneboxWindow &win) {
   // we need to lock actual restacking so that raising above active transient
   // won't do anything nasty
   if (!win.winClient().transientList().empty() )
-      win.screen().layerManager().lock();
+    win.screen().layerManager().lock();
 
   if (win.layerItem().raise() )
     for (auto it : win.winClient().transientList() )
@@ -117,7 +117,7 @@ void lowerShyneboxWindow(ShyneboxWindow &win) {
   // we need to lock actual restacking so that raising above active transient
   // won't do anything nasty
   if (!win.winClient().transientList().empty() )
-      win.screen().layerManager().lock();
+    win.screen().layerManager().lock();
 
   // lower the windows from the top down, so they don't change stacking order
   #define transients win.winClient().transientList()

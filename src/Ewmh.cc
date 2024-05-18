@@ -1062,7 +1062,7 @@ bool Ewmh::checkClientMessage(const XClientMessageEvent &ce,
     return true;
   } else if (ce.message_type == m_net->moveresize_window) {
     if (winclient == 0 || winclient->sbwindow() == 0)
-        return true;
+      return true;
     // ce.data.l[0] = gravity and flags
     int x = (ce.data.l[0] & (1 << 8) ) ? ce.data.l[1] :
                             winclient->sbwindow()->x();
