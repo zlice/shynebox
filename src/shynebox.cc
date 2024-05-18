@@ -135,7 +135,7 @@ KeyReloadHelper s_key_reloader;
 
 int s_randr_event_type = 0; // the type number of randr event
 int s_shape_eventbase = 0;  // event base for shape events
-bool s_have_shape = false ; // if shape is supported by server
+bool s_have_shape = false;  // if shape is supported by server
 
 Shynebox* s_singleton = 0;
 
