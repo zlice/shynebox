@@ -951,9 +951,7 @@ bool ShyneboxWindow::setCurrentClient(WinClient &client, bool setinput) {
 } // setCurrentClient
 
 bool ShyneboxWindow::isGroupable() const {
-  if (isResizable() && isMaximizable() && !winClient().isTransient() )
-    return true;
-  return false;
+  return isResizable() && isMaximizable() && !winClient().isTransient();
 }
 
 bool ShyneboxWindow::isFocusNew() const {

@@ -363,7 +363,7 @@ void IconbarTool::update(UpdateReason reason, Focusable *win) {
   // lock graphic update
   m_icon_container.setUpdateLock(true);
 
-  switch(reason) {
+  switch (reason) {
     case LIST_ADD:
       if (!win->isTransient() )
         insertWindow(*win);

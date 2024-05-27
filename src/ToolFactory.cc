@@ -131,9 +131,8 @@ void ToolFactory::updateIconbar(Focusable *win) {
     return;
   if (win == 0)
     m_icon_bar->update(IconbarTool::ALIGN, win);
-  else {
+  else
     m_icon_bar->update(IconbarTool::LIST_ADD, win);
-  }
 }
 
 void ToolFactory::updateThemes() {
