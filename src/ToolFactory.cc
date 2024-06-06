@@ -42,7 +42,9 @@ ToolbarItem *ToolFactory::create(const std::string &name, const tk::SbWindow &pa
     leftCommand = new PrevWorkspaceCmd(1);
     rightCommand = new NextWorkspaceCmd(1);
     m_ws_tool->button().setOnClick(*leftCommand);
+    m_ws_tool->button().setOnClick(*leftCommand,5);
     m_ws_tool->button().setOnClick(*rightCommand, 3);
+    m_ws_tool->button().setOnClick(*rightCommand, 4);
     item = m_ws_tool;
   } else if (name == "iconbar") {
     m_icon_bar = new IconbarTool(parent, m_iconbar_theme, m_focused_iconbar_theme,
