@@ -40,8 +40,9 @@ Button::Button(const SbWindow &parent, int x, int y,
 Button::~Button() {
   if (mark_if_deleted)
     *mark_if_deleted = true;
- for (auto c : m_onclick)
-   delete c;
+  for (auto c : m_onclick)
+    if (c)
+      delete c;
 } // Button class destroy
 
 void Button::setOnClick(Command<void> &cmd, int button) {

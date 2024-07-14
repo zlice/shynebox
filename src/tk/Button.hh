@@ -61,8 +61,8 @@ public:
   const Color &pressedColor() const { return m_pressed_color; }
 protected:
   Command<void> *command(int button) {
-    if (button < 2) return m_onclick[0];
-    if (button > 4) return m_onclick[4];
+    if (button < 2) button = 1;
+    if (button > 4) button = 5;
     return m_onclick[button - 1];
   }
 private:

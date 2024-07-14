@@ -38,13 +38,17 @@ ToolbarItem *ToolFactory::create(const std::string &name, const tk::SbWindow &pa
   if (name == "workspacename") {
     m_ws_tool = new WorkspaceNameTool(parent, *m_workspace_theme, screen() );
     using namespace tk;
-    Command<void> *leftCommand = 0, *rightCommand = 0;
-    leftCommand = new PrevWorkspaceCmd(1);
-    rightCommand = new NextWorkspaceCmd(1);
-    m_ws_tool->button().setOnClick(*leftCommand);
-    m_ws_tool->button().setOnClick(*leftCommand,5);
-    m_ws_tool->button().setOnClick(*rightCommand, 3);
-    m_ws_tool->button().setOnClick(*rightCommand, 4);
+    Command<void> *leftCommand1 = 0, *rightCommand1 = 0,
+                  *leftCommand2 = 0, *rightCommand2 = 0;
+    leftCommand1 = new PrevWorkspaceCmd(1);
+    leftCommand2 = new PrevWorkspaceCmd(1);
+    rightCommand2 = new NextWorkspaceCmd(1);
+    rightCommand2 = new NextWorkspaceCmd(1);
+    // TODO: hacky workaround using 2 commands. should be shared commands
+    m_ws_tool->button().setOnClick(*leftCommand1);
+    m_ws_tool->button().setOnClick(*leftCommand2, 5);
+    m_ws_tool->button().setOnClick(*rightCommand1, 3);
+    m_ws_tool->button().setOnClick(*rightCommand2, 4);
     item = m_ws_tool;
   } else if (name == "iconbar") {
     m_icon_bar = new IconbarTool(parent, m_iconbar_theme, m_focused_iconbar_theme,
