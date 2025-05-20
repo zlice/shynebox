@@ -26,6 +26,7 @@
 #include "WinButton.hh"
 #endif
 
+#include <algorithm>
 #include <list>
 #include <vector>
 #include <fstream>
