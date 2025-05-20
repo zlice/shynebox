@@ -19,7 +19,7 @@ namespace {
 
 void extract_windows_to_stack(const LayerItem::Windows& windows, std::vector<Window>& stack) {
   for (auto it : windows)
-    stack.push_back(it->window() );
+    stack.emplace_back(it->window() );
 }
 
 void extract_windows_to_stack(const tk::Layer::ItemList& items,
@@ -89,11 +89,12 @@ void Layer::stackBelowItem(LayerItem &item, LayerItem *above) {
   }
 
   std::vector<Window> stack;
+  stack.resize(item.getWindows().size() + 1);
 
   // We do have a window to stack below
   // so we put it on top, and fill the rest of the array with the ones to go below it.
   // assume that above's window exists
-  stack.push_back(above->getWindows().back()->window() );
+  stack.emplace_back(above->getWindows().back()->window() );
 
   // fill the rest of the array
   extract_windows_to_stack(item.getWindows(), stack);
@@ -126,7 +127,7 @@ void Layer::alignItem(LayerItem &item) {
 }
 
 void Layer::insert(LayerItem &item) {
-  m_items.push_back(&item); // reverse bot<>top for our vec-list for efficiency
+  m_items.emplace_back(&item); // reverse bot<>top for our vec-list for efficiency
   // restack below next window up
   stackBelowItem(item, m_manager.getLowestItemAboveLayer(m_layernum) );
 }
@@ -162,7 +163,7 @@ bool Layer::raise(LayerItem &item) {
     return false;
   }
 
-  m_items.push_back(&item);
+  m_items.emplace_back(&item);
   stackBelowItem(item, m_manager.getLowestItemAboveLayer(m_layernum) );
   return true;
 }
