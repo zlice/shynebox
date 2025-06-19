@@ -1,5 +1,14 @@
  (Format: Year/Month/Day)
 
+Changes for 2025-1.2:
+
+19/06/25
+    * Fix: Window set withdraw state on unmap notif. https://bugs.winehq.org/show_bug.cgi?id=58223
+    * Fix: FocusControl only print dbg if objects exist
+    * Fix: Layers mintor emplace_back performance
+    * Fix: Screen add "algorithm" header back for newer gcc
+    * Rework: ToolFactory button logic for workspace name tool hack
+
 Changes for 2023-1.1:
 
 23/10/23
