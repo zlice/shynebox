@@ -455,14 +455,14 @@ void FocusControl::setFocusedWindow(WinClient *client) {
       FocusControl::focusedWindow() ?
       &FocusControl::focusedWindow()->screen() : 0;
 
-  sbdbg<<"------------------\n";
-  sbdbg<<"Setting Focused window = "<<client<<"\n";
-  if (client != 0)
+  sbdbg<<"------------------\n" << std::hex;
+  if (client != 0) {
+    sbdbg<<"Setting Focused window = "<<client->window()<<"\n";
     sbdbg<<"title: "<<client->title().logical()<<"\n";
-  sbdbg<<"Current Focused window = "<<s_focused_window<<"\n";
+  }
   if (s_focused_sbwindow)
-    sbdbg<<"         x window id " << s_focused_sbwindow->clientWindow() << "\n";
-  sbdbg<<"------------------\n";
+    sbdbg<<"Current Focused window = "<<s_focused_window->window()<<"\n";
+  sbdbg<<"------------------\n" << std::dec;
 
   // Update the old focused client to non focus
   if (s_focused_sbwindow
