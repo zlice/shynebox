@@ -229,6 +229,11 @@ void SbWinFrame::moveResizeForClient(int x, int y,
   if (resize) // these fns check if the elements are "on"
     height += titlebarHeight() + handleHeight();
 
+  // hack for discord on restart so it doesn't slowly move down+right
+  // with title/border width. everything else seems fine.
+  // this does make an ugly 'jiggle' for everything else on restart
+  gravityTranslate(x, y, win_gravity, client_bw);
+
   setActiveGravity(win_gravity, client_bw);
   moveResize(x, y, width, height, move, resize);
 }

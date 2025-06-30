@@ -208,7 +208,7 @@ public:
   void setMouseFocus(bool value) { m_mouse_focus = value; }
   // sets whether or not the window gets focused with click
   void setClickFocus(bool value) { m_click_focus = value; }
-  void reconfigure();
+//  void reconfigure(); // TODO: DELETE - see comment in cc file
 
 
   void installColormap(bool);

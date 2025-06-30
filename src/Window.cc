@@ -252,8 +252,7 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
       && m_client->initial_state != WithdrawnState
       && m_client->getWMClassClass() != "DockApp") { // Slit client (removed)
 
-    if (m_client->initial_state == IconicState)
-      m_state.iconic = true;
+    m_state.iconic = m_client->initial_state == IconicState;
 
     m_client->setShyneboxWindow(this);
     m_client->setGroupLeftWindow(None); // nothing to the left.
@@ -327,7 +326,7 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
            || frame().y() > (signed)screen().height() )
         move(screen().getHeadX(cur), screen().getHeadY(cur) );
       setOnHead(cur);
-      m_placed = false; // allow placement strategy to fix position
+//      m_placed = false; // allow placement strategy to fix position
       if (m_state.maximized || m_state.fullscreen) {
         frame().applyState();
         frameExtentChanged();
@@ -342,8 +341,9 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
     // if a client request no decor (gedit, splash screens) the
     // default of using a titlebar has offset it lower than
     // where it should be in the frame.
-    if (!decorations.titlebar)
-      moveResizeClient(client);
+// TODO : DELETE - doesn't seem to do anything anymore?
+//    if (!decorations.titlebar)
+//      moveResizeClient(client);
 
     shynebox.setupFrame(*this); // setup remember and ewmh
 
@@ -357,7 +357,7 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
         new_height = 2 * screen().height() / 3;
       if (new_width || new_height) {
         resize(new_width ? new_width : width(), new_height ? new_height : height() );
-        m_placed = false;
+//        m_placed = false;
       }
     }
 
@@ -417,6 +417,9 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
     }
 
     if (m_state.iconic) {
+      // this does almost nothing for almost all windows
+      // see 'WithdrawnState' in unmapNotifyEvent() for SpecOps The Line
+      // this allows 'magic' so wine starts AND focuses window
       m_state.iconic = false;
       iconify();
     } else if (m_workspace_number == screen().currentWorkspaceID() ) {
@@ -1018,23 +1021,28 @@ void ShyneboxWindow::updateSizeHints() {
 // otherwise you will get fake-pseudo events
 // https://tronche.com/gui/x/xlib/events/input-focus/grab.html
 // which fuck up firefox and chromium for misc widgets in each
+// update: UNDO
+// firefox somehow fixed this and frame grabs are fine again?
 void ShyneboxWindow::grabButtons() {
   // similar to KeyUtil, I don't think mask matters
   XGrabButton(display, Button1, 0,
-              m_client->window(), False, ButtonPressMask,
+              //m_client->window(), False, ButtonPressMask, // TODO: DELETE
+              frame().window().window(), False, ButtonPressMask,
               GrabModeSync, GrabModeSync, None, None);
 }
 
-void ShyneboxWindow::reconfigure() {
-  updateButtons();
-  applyDecorations(); // frame().applyDeco calls frame reconfigure()
-  setFocusFlag(m_focused); // can set m_raise_timer on/off
-  m_raise_timer.setTimeout(Shynebox::instance()->getAutoRaiseDelay() * tk::SbTime::IN_MILLISECONDS);
-  m_tab_activate_timer.setTimeout(Shynebox::instance()->getAutoRaiseDelay() * tk::SbTime::IN_MILLISECONDS);
-
-  for (auto it : m_labelbuttons)
-    it.second->setPixmap(screen().getTabsUsePixmap() );
-}
+// TODO: DELETE
+// only use was in workspace which doesn't call this and everything seems fine
+//void ShyneboxWindow::reconfigure() {
+//  updateButtons();
+//  applyDecorations(); // frame().applyDeco calls frame reconfigure()
+//  setFocusFlag(m_focused); // can set m_raise_timer on/off
+//  m_raise_timer.setTimeout(Shynebox::instance()->getAutoRaiseDelay() * tk::SbTime::IN_MILLISECONDS);
+//  m_tab_activate_timer.setTimeout(Shynebox::instance()->getAutoRaiseDelay() * tk::SbTime::IN_MILLISECONDS);
+//
+//  for (auto it : m_labelbuttons)
+//    it.second->setPixmap(screen().getTabsUsePixmap() );
+//}
 
 void ShyneboxWindow::updateMWMHintsFromClient(WinClient &client) {
   const WinClient::MwmHints *hint = client.getMwmHint();
@@ -1120,16 +1128,16 @@ void ShyneboxWindow::move(int x, int y) {
 void ShyneboxWindow::resize(unsigned int width, unsigned int height) {
   // don't let moveResize set window as placed
   // since we're only resizing
-  bool placed = m_placed;
+//  bool placed = m_placed;
   moveResize(frame().x(), frame().y(), width, height);
-  m_placed = placed;
+//  m_placed = placed;
 }
 
 // send_event is just an override
 void ShyneboxWindow::moveResize(int new_x, int new_y,
                                unsigned int new_width, unsigned int new_height,
                                bool send_event) {
-  m_placed = true;
+//  m_placed = true;
   send_event = send_event || frame().x() != new_x || frame().y() != new_y;
 
   if ((new_width != frame().width() || new_height != frame().height() )
@@ -1169,7 +1177,7 @@ void ShyneboxWindow::moveResize(int new_x, int new_y,
 void ShyneboxWindow::moveResizeForClient(int new_x, int new_y,
                                unsigned int new_width, unsigned int new_height,
                                int gravity, unsigned int client_bw) {
-  m_placed = true;
+//  m_placed = true;
   frame().moveResizeForClient(new_x, new_y, new_width, new_height, gravity, client_bw);
   setFocusFlag(m_focused);
   m_state.shaded = false;
@@ -1328,6 +1336,13 @@ void ShyneboxWindow::deiconify(bool do_raise) {
 
   if (do_raise)
     raise();
+
+  // this HACK works to fix firefox windows... not sure why
+  // https://phabricator.services.mozilla.com/D234903
+  //        ^ removed --- win.updateGeometry(createData);
+  // frameextents signal in fluxbox::init was right afer setting 'm_creation_time'
+  // may want to move up before possible return? but need after show()? idk
+  sendConfigureNotify();
 } // deiconify (un-minimize)
 
 // maximize as big as the screen is, dont care about slit / toolbar
@@ -1845,9 +1860,10 @@ bool ShyneboxWindow::focusRequestFromClient(WinClient &from) {
        || (cur && (cur->focusProtection() & Focus::Lock) ) )
     ret = false;
   else if (cur && getRootTransientFor(&from) != getRootTransientFor(client) )
-    ret = !cur->isFullscreen() && !cur->isTyping()
-          && (!screen().focusControl().focusSameHead()
-            || (getOnHead() == cur->getOnHead() ) );
+    ret = (!screen().focusControl().focusSameHead() || (getOnHead() == cur->getOnHead() ) )
+        && !cur->isTyping();
+        // this used to check 'if !fullscreen' too but that breaks some games
+        // other WMs seem to imply fullscreen == focused, but here it does not
 
   return ret;
 }
@@ -1967,8 +1983,13 @@ void ShyneboxWindow::propertyNotifyEvent(WinClient &client, Atom atom) {
       if (atom == sbatoms->getWMProtocolsAtom() )
         client.updateWMProtocols();
       else if (atom == sbatoms->getMWMHintsAtom() ) {
-        client.updateMWMHints();
-        updateMWMHintsFromClient(client);
+        // ignore changes if it would ruin the current window state
+        // TODO: should this 'undo' the window state? imagine that
+        //       would cause more fuss with wine
+        if (!isShaded() && !isFullscreen() ) {
+          client.updateMWMHints();
+          updateMWMHintsFromClient(client);
+        }
         if (!m_toggled_decos)
           Remember::instance().updateDecoStateFromClient(client);
         applyDecorations(); // update decorations (if they changed)
@@ -3424,13 +3445,13 @@ void ShyneboxWindow::setOnHead(int head) {
     int cur = getOnHead();
     if (head == cur)
       return;
-    bool placed = m_placed; // save placement, move<moveresize<placewindow sets
+//    bool placed = m_placed; // save placement, move<moveresize<placewindow sets
     // alternatives:
     // - calc by percent of top-left (head to win)
     // - use screen's fitToHead()
     //   then use that to move()
     placeWindow(head);
-    m_placed = placed;
+//    m_placed = placed;
 
     // if Head has been changed we want it to redraw by current state
     if (m_state.maximized || m_state.fullscreen) {
