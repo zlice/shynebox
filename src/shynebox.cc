@@ -579,11 +579,11 @@ void Shynebox::handleEvent(XEvent * const e) {
   case DestroyNotify:
     {
     WinClient *winclient = searchWindow(e->xdestroywindow.window);
-    if (winclient != 0) {
-      ShyneboxWindow *win = winclient->sbwindow();
-      if (win)
-        win->destroyNotifyEvent(e->xdestroywindow);
-    }
+    if (winclient == 0)
+      break;
+    ShyneboxWindow *win = winclient->sbwindow();
+    if (win)
+      win->destroyNotifyEvent(e->xdestroywindow);
     }
     break;
   case MotionNotify:
