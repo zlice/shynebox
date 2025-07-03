@@ -586,6 +586,23 @@ void Shynebox::handleEvent(XEvent * const e) {
       win->destroyNotifyEvent(e->xdestroywindow);
     }
     break;
+  case ReparentNotify:
+    { // very rare thing that wine causes by unmapping windows to juggle hacky fixes
+      // unmapnotify occurs, which tries to destroy the window, AND reparent
+      // which all leads to a mess - so delete the client now
+
+      WinClient *winclient = searchWindow(e->xreparent.window);
+      if (winclient == 0)
+        break;
+      ShyneboxWindow *win = winclient->sbwindow();
+      if (win && e->xreparent.parent != win->frame().window().window() ) {
+        XDeleteProperty(display(), e->xreparent.window, SbAtoms::instance()->getWMStateAtom() );
+        XUngrabButton(display(), AnyButton, AnyModifier, e->xreparent.window);
+        win->removeClient(*winclient);
+        delete winclient;
+        if (win->empty() ) delete win;
+      }
+    }
   case MotionNotify:
     m_last_time = e->xmotion.time;
     break;
