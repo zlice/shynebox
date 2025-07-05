@@ -1208,25 +1208,23 @@ void Ewmh::toggleState(ShyneboxWindow &win, Atom state) {
 void Ewmh::setState(ShyneboxWindow &win, Atom state, bool value,
                   WinClient &client) {
   if (state == m_net->wm_state_sticky) { // STICKY
-    if ((value && !win.isStuck() )
-        || (!value && win.isStuck() ) )
+    if (win.isStuck() != value)
       win.stick();
   } else if (state == m_net->wm_state_shaded) { // SHADED
-    if ((value && !win.isShaded() )
-        || (!value && win.isShaded() ) )
+    if (win.isShaded() != value)
       win.shade();
   }  else if (state == m_net->wm_state_maximized_horz ) { // maximized Horizontal
-    if (value ^ win.isMaximizedHorz() )
+    if (win.isMaximizedHorz() ^ value)
       win.maximizeHorizontal();
   } else if (state == m_net->wm_state_maximized_vert) { // maximized Vertical
-    if (value ^ win.isMaximizedVert() )
+    if (win.isMaximizedVert() ^ value)
       win.maximizeVertical();
   } else if (state == m_net->wm_state_fullscreen) { // fullscreen
     win.setFullscreen(value);
   } else if (state == m_net->wm_state_hidden) { // minimized
-    if (value && !win.isIconic() )
+    if (!win.isIconic() && value)
       win.iconify();
-    else if (!value && win.isIconic() )
+    else if (win.isIconic() && !value)
       win.deiconify();
   } else if (state == m_net->wm_state_skip_taskbar) { // skip taskbar
     win.setIconHidden(value);
