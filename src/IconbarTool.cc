@@ -359,13 +359,14 @@ void IconbarTool::update(UpdateReason reason, Focusable *win) {
   // clientlistsig was in 1.3.7 f-box-class and focuscontrol
   // createwindow (which calls this with ADD) emit'ed clientlistsig
   // must have been lucky order of ops? no way to tell with signal twine-yarn
+  // wine: some tools (FO3Edit) have 'NET_WM_STATE_SKIP_TASKBAR' aka isIconHidden()
 
   // lock graphic update
   m_icon_container.setUpdateLock(true);
 
   switch (reason) {
     case LIST_ADD:
-      if (!win->isTransient() )
+      if (!win->isTransient() && !win->sbwindow()->isIconHidden() )
         insertWindow(*win);
       resetLock();
       break;
