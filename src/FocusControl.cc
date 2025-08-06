@@ -233,9 +233,9 @@ Focusable *FocusControl::lastFocusedWindow(int workspace) {
     if (it->sbwindow() && it->acceptsFocus()
         && it->sbwindow()->winClient().validateClient()
         && ((cur_head == -1) || (it->sbwindow()->getOnHead() == cur_head) )
-        && (!it->sbwindow()->isIconic() )
-            && (((int)it->sbwindow()->workspaceNumber() ) == workspace
-                || it->sbwindow()->isStuck() ) )
+        && !it->sbwindow()->isIconic()
+        && (((int)it->sbwindow()->workspaceNumber() ) == workspace
+            || it->sbwindow()->isStuck() ) )
       return it;
   }
   return 0;
