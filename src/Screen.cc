@@ -745,9 +745,11 @@ void BScreen::changeWorkspaceID(unsigned int id, bool revert) {
 
   ShyneboxWindow *focused = FocusControl::focusedSbWindow();
 
+// TODO: DELETE this makes little sense. sendToWorkspace() must have been called
+//       which is sent from motion events in Window, has to be reassociated already
   // don't reassociate if not opaque moving
-  if (focused && focused->isMoving() && doOpaqueMove() )
-    reassociateWindow(focused, id, true);
+//  if (focused && focused->isMoving() && doOpaqueMove() )
+//    reassociateWindow(focused, id, true);
 
   // set new workspace
   Workspace *old = m_current_workspace;
@@ -755,7 +757,7 @@ void BScreen::changeWorkspaceID(unsigned int id, bool revert) {
   m_current_wsid = id;
 
   // we show new workspace first in order to appear faster
-  currentWorkspace()->showAll();
+  m_current_workspace->showAll();
 
   // reassociate all windows that are stuck to the new workspace
   Workspace::Windows wins = old->windowList(); // specifies type for 'auto'
@@ -770,9 +772,17 @@ void BScreen::changeWorkspaceID(unsigned int id, bool revert) {
       it->setWorkspace(id);
     }
 
-  if (focused && focused->isMoving() && doOpaqueMove() )
-    focused->focus();
-  else if (revert)
+// TODO: DELETE - as mentioned above this is pretty much a dupe focus
+// BUT - the condition to not revert is importan
+//  if (focused && focused->isMoving() && doOpaqueMove() )
+//    focused->focus();
+//  else if (revert)
+  // previous logic would check and re-call focus on the focused window
+  // this copies that behavior to prevent revert focus
+//  if (focused && focused->isMoving() && doOpaqueMove() )
+//    { }
+//  else if (revert)
+  if (!(focused && focused->isMoving() && doOpaqueMove() ) && revert)
     FocusControl::revertFocus(*this);
 
   old->hideAll(false);
