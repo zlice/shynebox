@@ -55,7 +55,11 @@ int Workspace::removeWindow(ShyneboxWindow *w, bool still_alive) {
   // leads in a wild race between BScreen::reassociateWindow(),
   // BScreen::changeWorkspaceID(), ShyneboxWindow::focus() etc. which
   // finally leads to crash.
-  if (w->isFocused() && !w->isTransient() && still_alive)
+  //if (w->isFocused() && !w->isTransient() && still_alive)
+  // TODO: DELETE COMMENT - this used to be true, probably because of signals
+  //       being confusing and not sending parents insead of direct transients
+  //       i don't think this is true anymore
+  if (w->isFocused() && still_alive)
     FocusControl::unfocusWindow(w->winClient(), true, true);
 
   m_windowlist.remove(w);
