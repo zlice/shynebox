@@ -283,18 +283,22 @@ void SetHeadCmd::real_execute() {
 }
 
 void SendToWorkspaceCmd::real_execute() {
+  ShyneboxWindow *pwin = !sbwindow().isTransient() ? &sbwindow()
+             : sbwindow().winClient().transientFor()->sbwindow();
   int num = m_workspace_num;
   int total = sbwindow().screen().numberOfWorkspaces();
   if (num < 0)
     num += total + 1;
   num = clamp(num, 1, total);
-  sbwindow().screen().sendToWorkspace(num-1, &sbwindow(), m_take);
+  sbwindow().screen().sendToWorkspace(num-1, pwin, m_take);
 }
 
 void SendToNextWorkspaceCmd::real_execute() {
+  ShyneboxWindow *pwin = !sbwindow().isTransient() ? &sbwindow()
+             : sbwindow().winClient().transientFor()->sbwindow();
   int total = sbwindow().screen().numberOfWorkspaces();
   const int ws_nr = (total + (sbwindow().workspaceNumber() + m_delta % total) ) % total;
-  sbwindow().screen().sendToWorkspace(ws_nr, &sbwindow(), m_take);
+  sbwindow().screen().sendToWorkspace(ws_nr, pwin, m_take);
 }
 
 void SendToNextHeadCmd::real_execute() {

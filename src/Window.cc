@@ -377,9 +377,11 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
         m_state.layernum = twin->layerNum();
       }
       m_workspace_number = twin->workspaceNumber();
-      const int x = twin->frame().x() + int(twin->frame().width() - frame().width() ) / 2;
-      const int y = twin->frame().y() + int(twin->frame().height() - frame().height() ) / 2;
-      frame().move(x, y); // fit to parent
+// TODO: DELETE - this is bogus behavior. child windows should show up where theyre requested
+//       somtimes this is inside the parent box, sometimes not, but centering override sucks
+//      const int x = twin->frame().x() + int(twin->frame().width() - frame().width() ) / 2;
+//      const int y = twin->frame().y() + int(twin->frame().height() - frame().height() ) / 2;
+//      frame().move(x, y); // fit to parent
       fitToScreen(); // fit to screen just in case
       m_placed = true;
     } else // if no parent then set default layer
@@ -2330,8 +2332,13 @@ void ShyneboxWindow::motionNotifyEvent(XMotionEvent &me) {
                      m_last_resize_x, m_last_resize_y);
 
         // tabbing grabs the pointer, we must not hide the window!
-        if (m_attaching_tab || screen().doOpaqueMove() )
-          screen().sendToWorkspace(new_id, this, true);
+        if (m_attaching_tab || screen().doOpaqueMove() ) {
+          // send parent, which will send all transients in sendto()
+          // note: not perfect, but was crashing before
+          ShyneboxWindow *pwin = !isTransient() ? this
+             : m_client->transientFor()->sbwindow();
+          screen().sendToWorkspace(new_id, pwin, true);
+        }
         else
           screen().changeWorkspaceID(new_id, false);
       }
@@ -2705,8 +2712,12 @@ void ShyneboxWindow::stopMoving(bool interrupted) {
                            frame().height() + 2*frame().window().borderWidth()-1);
     if (!interrupted) {
       moveResize(m_last_move_x, m_last_move_y, frame().width(), frame().height() );
-      if (m_workspace_number != screen().currentWorkspaceID() )
-        screen().sendToWorkspace(screen().currentWorkspaceID(), this);
+      if (m_workspace_number != screen().currentWorkspaceID() ) {
+        // send parent, which will send all transients in sendto()
+        ShyneboxWindow *pwin = !isTransient() ? this
+           : m_client->transientFor()->sbwindow();
+        screen().sendToWorkspace(screen().currentWorkspaceID(), pwin);
+      }
       focus();
     }
     shynebox->ungrab();
