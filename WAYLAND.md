@@ -3,6 +3,10 @@
 There's a lot missing or that I need, not counting reconfiguring.
 Wayland is only drawbacks for me.
 
+None of these matter below when you debug gui programs.
+
+https://gitlab.freedesktop.org/wayland/wayland/-/issues/159
+
 ### rewrite libinput
 
 libinput still seems to be the only way to to control input devices in Wayland.
@@ -20,6 +24,8 @@ I feel is suitable.
 
 ### wlroots still has forced v-sync
 
+Would probably not use wlroots anymore.
+
 This was one of the initial issues I had with Wayland. Seems like it was out of
 laziness or not understanding the audience. Some Wayland desktops have this feature
 finally, ~~however wlroots still has open issues for v-sync disable~~.
@@ -34,7 +40,11 @@ The compositors job to implement for now.
 
 https://gitlab.freedesktop.org/wayland/wayland-protocols/-/issues/72
 
+https://gitlab.freedesktop.org/wayland/wayland-protocols/-/merge_requests/264
+
 ### single window sharing
+
+2025 - should be ok now?
 
 Either has to be implemented in the WM itself or may not work altogether
 from what I hear other people talking about with other Wayland/wlroots WMs.
@@ -45,6 +55,8 @@ Just a headache overall for something that is a privacy/security concern.
 Last I tried, none of these were low resource or fast or stable or worked as I expected.
 
 ### Discord
+
+2025 - should be ok now?
 
 Don't see them doing it any time soon, if at all. Between screen sharing, drag'n'drop
 and XWalyand woes, it won't be the same.
