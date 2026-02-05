@@ -7,6 +7,8 @@ None of these matter below when you debug gui programs.
 
 https://gitlab.freedesktop.org/wayland/wayland/-/issues/159
 
+https://gitlab.freedesktop.org/wayland/wayland/-/issues/443
+
 ### rewrite libinput
 
 libinput still seems to be the only way to to control input devices in Wayland.
