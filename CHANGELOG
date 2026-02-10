@@ -1,5 +1,28 @@
  (Format: Year/Month/Day)
 
+Changes for 2026-1.3:
+
+10/02/26
+    * HACK: Screen workaround for pointer grabbed windows on keyboard cycle (alt+tab)
+    * Fix: Window make un/grab static funcs public for window cycling workaround
+    * Fix: Screen cancel cycling when new windows are created
+    * Fix: Workspace fix potential race condition
+    * Rework: Window change decor bits
+    * Fix: Workspace update comment about transient chec
+    * Fix Screen remove duplicate logic for changeWorkspaceID
+    * Rework: FocusControl formatting if-ands
+    * Fix: CurWinCmd, Window - sendTo transient parents
+    * Fix: Ewmh setState formatting
+    * Fix: IconbarTool do not add NET_WM_STATE_SKIP_TASKBAR/isIconHidden() to taskbar
+    * Fix: shynebox add manual reparent client kill
+    * Fix: Window: cleanup and fixes
+      iconic branchless
+      if decor moveResizeClient
+      m_placed useless
+      reconfigure useless
+      deiconfy hack for some geometry like firefox
+      ignore mwmhint if shaded or fullscreen
+
 Changes for 2025-1.2:
 
 19/06/25

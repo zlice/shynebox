@@ -5,7 +5,7 @@
 
 project(
   'synebox', 'cpp',
-  version: '2025-1.2',
+  version: '2026-1.3',
   default_options: [
     'cpp_std=c++17',
     'warning_level=0',
