@@ -55,11 +55,13 @@ int Workspace::removeWindow(ShyneboxWindow *w, bool still_alive) {
   // leads in a wild race between BScreen::reassociateWindow(),
   // BScreen::changeWorkspaceID(), ShyneboxWindow::focus() etc. which
   // finally leads to crash.
-  //if (w->isFocused() && !w->isTransient() && still_alive)
-  // TODO: DELETE COMMENT - this used to be true, probably because of signals
-  //       being confusing and not sending parents insead of direct transients
-  //       i don't think this is true anymore
-  if (w->isFocused() && still_alive)
+  // update: 2025 Aug 11
+  // this does not seem to lead to crashes now, but without the transient
+  // check you can get a stale dead window that doesn't close
+  // e.g.
+  // Shift 107 :MacroCmd {Exec import -depth 32 -window root /tmp/ssf0.png ; urxvt -e bash -c 'i=0 ; while [ -f /tmp/ssf$i.png ] ; do i=$((i+1)) ; done ; mv /tmp/ssf0.png /tmp/ssf$i.png' }
+  // race condition that may trigger this. without transient, there is a brief flash
+  if (w->isFocused() && !w->isTransient() && still_alive)
     FocusControl::unfocusWindow(w->winClient(), true, true);
 
   m_windowlist.remove(w);
