@@ -696,6 +696,7 @@ void BScreen::removeLastWorkspace() {
 
 // Goes to the workspace "right" of the current
 void BScreen::nextWorkspace(int delta) {
+  m_state.cycling = false;
   focusControl().stopCyclingFocus();
   if (delta)
     changeWorkspaceID( (m_current_wsid + delta) % numberOfWorkspaces() );
@@ -705,6 +706,7 @@ void BScreen::nextWorkspace(int delta) {
 
 // Goes to the workspace "left" of the current
 void BScreen::prevWorkspace(int delta) {
+  m_state.cycling = false;
   focusControl().stopCyclingFocus();
   if (delta)
     changeWorkspaceID( (static_cast<signed>(numberOfWorkspaces() )
@@ -718,6 +720,7 @@ void BScreen::prevWorkspace(int delta) {
 
 // Goes to the workspace "right" of the current
 void BScreen::rightWorkspace(int delta) {
+  m_state.cycling = false;
   focusControl().stopCyclingFocus();
   if (m_current_wsid + delta < numberOfWorkspaces() )
     changeWorkspaceID(m_current_wsid + delta);
@@ -1126,6 +1129,12 @@ void BScreen::createWindow(Window client) {
   if (isKdeDockapp(client) && addKdeDockapp(client) )
     return;
 
+  // quit any cycling and allow new windows to behave 'normally'
+  if (isCycling() ) {
+    m_state.cycling = false;
+    focusControl().stopCyclingFocus();
+  }
+
   WinClient *winclient = new WinClient(client, *this);
 
   if (winclient->initial_state == WithdrawnState
@@ -1186,6 +1195,12 @@ void BScreen::createWindow(Window client) {
 void BScreen::createWindow(WinClient &client) {
   if (isKdeDockapp(client.window() ) && addKdeDockapp(client.window() ) )
     return;
+
+  // quit any cycling and allow new windows to behave 'normally'
+  if (isCycling() ) {
+    m_state.cycling = false;
+    focusControl().stopCyclingFocus();
+  }
 
   ShyneboxWindow *win = new ShyneboxWindow(client);
 
