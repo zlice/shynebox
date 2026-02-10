@@ -35,6 +35,7 @@
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
 
+#include <climits>
 #include <cstring>
 #include <cstdio>
 #include <iostream>
@@ -306,7 +307,7 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
       m_state.stuck = m_client->transientFor()->sbwindow()->isStuck();
 
     if (!m_client->sizeHints().isResizable() ) // no tab for this window
-      functions.resize = functions.maximize = decorations.tab = false;
+      functions.resize = functions.maximize = decorations.decor_bits.tab = false;
 
     associateClientWindow();
 
@@ -1051,32 +1052,33 @@ void ShyneboxWindow::updateMWMHintsFromClient(WinClient &client) {
 
   if (hint && !m_toggled_decos && hint->flags & MwmHintsDecorations) {
     if (hint->decorations & MwmDecorAll) {
-      decorations.titlebar = decorations.handle = decorations.border =
-                          decorations.iconify = decorations.maximize =
-                          decorations.menu = true;
+      decorations.decor_bits.titlebar = decorations.decor_bits.handle
+      = decorations.decor_bits.border = decorations.decor_bits.iconify
+      = decorations.decor_bits.maximize = decorations.decor_bits.menu = true;
     } else {
-      decorations.titlebar = decorations.handle = decorations.border =
-                          decorations.iconify = decorations.maximize =
-                          decorations.tab = false;
-      decorations.menu = true;
+      decorations.decor_bits.menu = true;
+      decorations.decor_bits.titlebar = decorations.decor_bits.handle
+      = decorations.decor_bits.border = decorations.decor_bits.iconify
+      = decorations.decor_bits.maximize = decorations.decor_bits.tab = false;
       if (hint->decorations & MwmDecorBorder)
-        decorations.border = true;
+        decorations.decor_bits.border = true;
       if (hint->decorations & MwmDecorHandle)
-        decorations.handle = true;
+        decorations.decor_bits.handle = true;
       if (hint->decorations & MwmDecorTitle) {
-        decorations.titlebar = decorations.tab = true;
+        decorations.decor_bits.titlebar = decorations.decor_bits.tab = true;
         //only tab on windows with titlebar
       }
       if (hint->decorations & MwmDecorMenu)
-        decorations.menu = true;
+        decorations.decor_bits.menu = true;
       if (hint->decorations & MwmDecorIconify)
-        decorations.iconify = true;
+        decorations.decor_bits.iconify = true;
       if (hint->decorations & MwmDecorMaximize)
-        decorations.maximize = true;
+        decorations.decor_bits.maximize = true;
     }
   } else {
-    decorations.titlebar = decorations.handle = decorations.border =
-    decorations.iconify = decorations.maximize = decorations.menu = true;
+    decorations.decor_bits.titlebar = decorations.decor_bits.handle
+    = decorations.decor_bits.border = decorations.decor_bits.iconify
+    = decorations.decor_bits.maximize = decorations.decor_bits.menu = true;
   }
 
   unsigned int mask = decorationMask();
@@ -1454,7 +1456,7 @@ void ShyneboxWindow::setLayerNum(int layernum) {
 
 void ShyneboxWindow::shade() {
   // we can only shade if we have a titlebar
-  if (!decorations.titlebar)
+  if (!decorations.decor_bits.titlebar)
     return;
 
   m_state.shaded = !m_state.shaded;
@@ -2606,7 +2608,7 @@ void ShyneboxWindow::toggleDecoration() {
 
   if (m_toggled_decos) {
     m_old_decoration_mask = decorationMask();
-    if (decorations.titlebar | decorations.tab)
+    if (decorations.decor_bits.titlebar | decorations.decor_bits.tab)
       setDecorationMask(WindowState::DECOR_NONE);
     else
       setDecorationMask(WindowState::DECOR_NORMAL);
@@ -2615,44 +2617,86 @@ void ShyneboxWindow::toggleDecoration() {
 }
 
 unsigned int ShyneboxWindow::decorationMask() const {
-  unsigned int ret = 0;
-  if (decorations.titlebar)
-    ret |= WindowState::DECORM_TITLEBAR;
-  if (decorations.handle)
-    ret |= WindowState::DECORM_HANDLE;
-  if (decorations.border)
-    ret |= WindowState::DECORM_BORDER;
-  if (decorations.iconify)
-    ret |= WindowState::DECORM_ICONIFY;
-  if (decorations.maximize)
-    ret |= WindowState::DECORM_MAXIMIZE;
-  if (decorations.close)
-    ret |= WindowState::DECORM_CLOSE;
-  if (decorations.menu)
-    ret |= WindowState::DECORM_MENU;
-  if (decorations.sticky)
-    ret |= WindowState::DECORM_STICKY;
-  if (decorations.shade)
-    ret |= WindowState::DECORM_SHADE;
-  if (decorations.tab)
-    ret |= WindowState::DECORM_TAB;
-  if (decorations.enabled)
-    ret |= WindowState::DECORM_ENABLED;
-  return ret;
+  return decorations.decor_all;
+////////////// 131 bytes ? correct order though (titlebar is 1s place)
+//  unsigned int ret = 0;
+//  ret |= decorations.enabled; ret = ret << 1; // WindowState::DECORM_ENABLED;
+//  ret |= decorations.tab; ret = ret << 1; // WindowState::DECORM_TAB
+//  ret |= decorations.shade; ret = ret << 1; // WindowState::DECORM_SHADE
+//  ret |= decorations.sticky; ret = ret << 1; // ndowState::DECORM_STICKY
+//  ret |= decorations.menu; ret = ret << 1; // WindowState::DECORM_MENU
+//  ret |= decorations.close; ret = ret << 1; // WindowState::DECORM_CLOSE
+//  ret |= decorations.maximize; ret = ret << 1; // WindowState::DECORM_MAXIMIZE
+//  ret |= decorations.iconify; ret = ret << 1; // WindowState::DECORM_ICONIFY
+//  ret |= decorations.border; ret = ret << 1; // WindowState::DECORM_BORDER
+//  ret |= decorations.handle; ret = ret << 1; // WindowState::DECORM_HANDLE
+//  ret |= decorations.titlebar; // WindowState::DECORM_TITLEBAR)
+//  return ret;
+////////////////////// 144 bytes too
+//  return (unsigned int)(((0 - decorations.titlebar) & WindowState::DECORM_TITLEBAR)
+//    | ((0 - decorations.handle) & WindowState::DECORM_HANDLE)
+//    | ((0 - decorations.border) & WindowState::DECORM_BORDER)
+//    | ((0 - decorations.iconify) & WindowState::DECORM_ICONIFY)
+//    | ((0 - decorations.maximize) & WindowState::DECORM_MAXIMIZE)
+//    | ((0 - decorations.close) & WindowState::DECORM_CLOSE)
+//    | ((0 - decorations.menu) & WindowState::DECORM_MENU)
+//    | ((0 - decorations.sticky) & WindowState::DECORM_STICKY)
+//    | ((0 - decorations.shade) & WindowState::DECORM_SHADE)
+//    | ((0 - decorations.tab) & WindowState::DECORM_TAB)
+//    | ((0 - decorations.enabled) & WindowState::DECORM_ENABLED) );
+///////////////////// 130 bytes ?
+//  unsigned int ret = 0;
+//  ret |= decorations.titlebar; ret = ret << 1; // WindowState::DECORM_TITLEBAR)
+//  ret |= decorations.handle; ret = ret << 1; // WindowState::DECORM_HANDLE
+//  ret |= decorations.border; ret = ret << 1; // WindowState::DECORM_BORDER
+//  ret |= decorations.iconify; ret = ret << 1; // WindowState::DECORM_ICONIFY
+//  ret |= decorations.maximize; ret = ret << 1; // WindowState::DECORM_MAXIMIZE
+//  ret |= decorations.close; ret = ret << 1; // WindowState::DECORM_CLOSE
+//  ret |= decorations.menu; ret = ret << 1; // WindowState::DECORM_MENU
+//  ret |= decorations.sticky; ret = ret << 1; // ndowState::DECORM_STICKY
+//  ret |= decorations.shade; ret = ret << 1; // WindowState::DECORM_SHADE
+//  ret |= decorations.tab; ret = ret << 1; // WindowState::DECORM_TAB
+//  ret |= decorations.enabled; // WindowState::DECORM_ENABLED;
+//  return ret;
+/////////////////////////// 144 bytes ?
+//  unsigned int ret = 0;
+//  if (decorations.titlebar)
+//    ret |= WindowState::DECORM_TITLEBAR;
+//  if (decorations.handle)
+//    ret |= WindowState::DECORM_HANDLE;
+//  if (decorations.border)
+//    ret |= WindowState::DECORM_BORDER;
+//  if (decorations.iconify)
+//    ret |= WindowState::DECORM_ICONIFY;
+//  if (decorations.maximize)
+//    ret |= WindowState::DECORM_MAXIMIZE;
+//  if (decorations.close)
+//    ret |= WindowState::DECORM_CLOSE;
+//  if (decorations.menu)
+//    ret |= WindowState::DECORM_MENU;
+//  if (decorations.sticky)
+//    ret |= WindowState::DECORM_STICKY;
+//  if (decorations.shade)
+//    ret |= WindowState::DECORM_SHADE;
+//  if (decorations.tab)
+//    ret |= WindowState::DECORM_TAB;
+//  if (decorations.enabled)
+//    ret |= WindowState::DECORM_ENABLED;
+//  return ret;
 }
 
 void ShyneboxWindow::setDecorationMask(unsigned int mask, bool apply) {
-  decorations.titlebar = mask & WindowState::DECORM_TITLEBAR;
-  decorations.handle   = mask & WindowState::DECORM_HANDLE;
-  decorations.border   = mask & WindowState::DECORM_BORDER;
-  decorations.iconify  = mask & WindowState::DECORM_ICONIFY;
-  decorations.maximize = mask & WindowState::DECORM_MAXIMIZE;
-  decorations.close    = mask & WindowState::DECORM_CLOSE;
-  decorations.menu     = mask & WindowState::DECORM_MENU;
-  decorations.sticky   = mask & WindowState::DECORM_STICKY;
-  decorations.shade    = mask & WindowState::DECORM_SHADE;
-  decorations.tab      = mask & WindowState::DECORM_TAB;
-  decorations.enabled  = mask & WindowState::DECORM_ENABLED;
+  decorations.decor_bits.titlebar = mask & WindowState::DECORM_TITLEBAR;
+  decorations.decor_bits.handle   = mask & WindowState::DECORM_HANDLE;
+  decorations.decor_bits.border   = mask & WindowState::DECORM_BORDER;
+  decorations.decor_bits.iconify  = mask & WindowState::DECORM_ICONIFY;
+  decorations.decor_bits.maximize = mask & WindowState::DECORM_MAXIMIZE;
+  decorations.decor_bits.close    = mask & WindowState::DECORM_CLOSE;
+  decorations.decor_bits.menu     = mask & WindowState::DECORM_MENU;
+  decorations.decor_bits.sticky   = mask & WindowState::DECORM_STICKY;
+  decorations.decor_bits.shade    = mask & WindowState::DECORM_SHADE;
+  decorations.decor_bits.tab      = mask & WindowState::DECORM_TAB;
+  decorations.decor_bits.enabled  = mask & WindowState::DECORM_ENABLED;
 
   // we don't want to do this during initialization
   if (apply)

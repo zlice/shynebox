@@ -297,7 +297,7 @@ public:
   bool isStuck() const { return m_state.stuck; }
   bool isFocusNew() const;
   Focus::Protection focusProtection() const { return m_focus_protection; }
-  bool hasTitlebar() const { return decorations.titlebar; }
+  bool hasTitlebar() const { return decorations.decor_bits.titlebar; }
   bool isMoving() const { return moving; }
   bool isResizing() const { return resizing; }
   bool isGroupable() const;
@@ -447,9 +447,12 @@ private:
   bool m_has_tooltip = false;
 
   SizeHints m_size_hint;
-  struct {
-      bool titlebar:1, handle:1, border:1, iconify:1,
-          maximize:1, close:1, menu:1, sticky:1, shade:1, tab:1, enabled:1;
+  union {
+    struct {
+        bool titlebar:1, handle:1, border:1, iconify:1,
+            maximize:1, close:1, menu:1, sticky:1, shade:1, tab:1, enabled:1;
+    } decor_bits;
+    unsigned int decor_all;
   } decorations;
 
   int m_titlebar_but_sizes[2] = { 0 }; // tracker for need_update
