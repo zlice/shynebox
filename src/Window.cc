@@ -339,13 +339,6 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
     // we must do this now, or else resizing may not work properly
     applyDecorations();
 
-    // if a client request no decor (gedit, splash screens) the
-    // default of using a titlebar has offset it lower than
-    // where it should be in the frame.
-// TODO : DELETE - doesn't seem to do anything anymore?
-//    if (!decorations.titlebar)
-//      moveResizeClient(client);
-
     shynebox.setupFrame(*this); // setup remember and ewmh
 
     // TODO: currently whole screen, could do per head
@@ -378,11 +371,7 @@ ShyneboxWindow::ShyneboxWindow(WinClient &client):
         m_state.layernum = twin->layerNum();
       }
       m_workspace_number = twin->workspaceNumber();
-// TODO: DELETE - this is bogus behavior. child windows should show up where theyre requested
-//       somtimes this is inside the parent box, sometimes not, but centering override sucks
-//      const int x = twin->frame().x() + int(twin->frame().width() - frame().width() ) / 2;
-//      const int y = twin->frame().y() + int(twin->frame().height() - frame().height() ) / 2;
-//      frame().move(x, y); // fit to parent
+
       fitToScreen(); // fit to screen just in case
       m_placed = true;
     } else // if no parent then set default layer
@@ -1029,23 +1018,9 @@ void ShyneboxWindow::updateSizeHints() {
 void ShyneboxWindow::grabButtons() {
   // similar to KeyUtil, I don't think mask matters
   XGrabButton(display, Button1, 0,
-              //m_client->window(), False, ButtonPressMask, // TODO: DELETE
               frame().window().window(), False, ButtonPressMask,
               GrabModeSync, GrabModeSync, None, None);
 }
-
-// TODO: DELETE
-// only use was in workspace which doesn't call this and everything seems fine
-//void ShyneboxWindow::reconfigure() {
-//  updateButtons();
-//  applyDecorations(); // frame().applyDeco calls frame reconfigure()
-//  setFocusFlag(m_focused); // can set m_raise_timer on/off
-//  m_raise_timer.setTimeout(Shynebox::instance()->getAutoRaiseDelay() * tk::SbTime::IN_MILLISECONDS);
-//  m_tab_activate_timer.setTimeout(Shynebox::instance()->getAutoRaiseDelay() * tk::SbTime::IN_MILLISECONDS);
-//
-//  for (auto it : m_labelbuttons)
-//    it.second->setPixmap(screen().getTabsUsePixmap() );
-//}
 
 void ShyneboxWindow::updateMWMHintsFromClient(WinClient &client) {
   const WinClient::MwmHints *hint = client.getMwmHint();
