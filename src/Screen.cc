@@ -879,6 +879,14 @@ void BScreen::cycleFocus(int options, const ClientPattern *pat, bool reverse) {
   // so just put a lock on this, ignore and wait for the next attempt
   if (m_cycle_lock)
     return;
+
+  // HACK: firefox (gtk3) grabs the pointer when you drag the empty CSD titlebar
+  // which causes alt+tab (cycle) to put the window in a 'half-focused' state.
+  // firefox behaves by starting to drag the tab you are on instead of the window
+  // as this is a grab done by firefox, there is no real way to 'check' if it's grabbed
+  // so you just have to tell it to ungrab, and the WM side counter shoul still be 0
+  FocusControl::focusedSbWindow()->ungrabPointer(CurrentTime);
+
   m_cycle_lock = true;
   m_cycle_timer.start();
 
