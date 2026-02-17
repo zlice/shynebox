@@ -369,6 +369,15 @@ public:
   void setTitle(const std::string &title, Focusable &client);
   void themeReconfigured();
 
+  static void grabPointer(Window grab_window,
+                   Bool owner_events,
+                   unsigned int event_mask,
+                   int pointer_mode, int keyboard_mode,
+                   Window confine_to,
+                   Cursor cursor,
+                   Time time);
+  static void ungrabPointer(Time time);
+
 private:
   void updateButtons();
 
@@ -397,15 +406,6 @@ private:
   // sends configurenotify to all clients
   void sendConfigureNotify();
   void updateResize() { moveResize(m_last_resize_x, m_last_resize_y, m_last_resize_w, m_last_resize_h); }
-
-  static void grabPointer(Window grab_window,
-                   Bool owner_events,
-                   unsigned int event_mask,
-                   int pointer_mode, int keyboard_mode,
-                   Window confine_to,
-                   Cursor cursor,
-                   Time time);
-  static void ungrabPointer(Time time);
 
   void associateClient(WinClient &client);
   // Called when workspace area on screen changed.
