@@ -1962,13 +1962,8 @@ void ShyneboxWindow::propertyNotifyEvent(WinClient &client, Atom atom) {
       if (atom == sbatoms->getWMProtocolsAtom() )
         client.updateWMProtocols();
       else if (atom == sbatoms->getMWMHintsAtom() ) {
-        // ignore changes if it would ruin the current window state
-        // TODO: should this 'undo' the window state? imagine that
-        //       would cause more fuss with wine
-        if (!isShaded() && !isFullscreen() ) {
-          client.updateMWMHints();
-          updateMWMHintsFromClient(client);
-        }
+        client.updateMWMHints();
+        updateMWMHintsFromClient(client);
         if (!m_toggled_decos)
           Remember::instance().updateDecoStateFromClient(client);
         applyDecorations(); // update decorations (if they changed)
